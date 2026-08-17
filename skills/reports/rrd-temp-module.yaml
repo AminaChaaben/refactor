@@ -1,0 +1,20 @@
+code: rrd
+name: "Refactor Radar"
+description: "Graph-and-log-driven detection of test/code reliability defects (dependency/cascade, instability, data lifecycle, maintenance/duplication), with reviewable diff proposals."
+module_version: 2.0.0
+default_selected: false
+module_greeting: >
+  Ray is ready to investigate. Point them at any project already indexed in codebase-memory-mcp
+  and ask for Detect Dependencies, Detect Instability, Detect Data Issues, Detect Duplication, or
+  a full Audit All. Every finding cites its evidence; every fix is a reviewable diff — nothing is
+  ever applied automatically.
+
+  Run this module's setup skill at any time to reconfigure, or edit
+  {project-root}/_bmad/rrd/config.yaml directly.
+
+agents:
+  - code: rrd-agent-radar
+    name: "Ray"
+    title: "Refactor Detective"
+    icon: "🔍"
+    description: "Finds test/code reliability defects via the codebase knowledge graph and proposes reviewable diffs, never editing source directly."

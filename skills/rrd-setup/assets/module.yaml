@@ -1,0 +1,34 @@
+code: rrd
+name: "Refactor Radar"
+description: "Graph-and-log-driven detection of test/code reliability and maintainability defects (dependency/cascade, instability, data lifecycle, duplication, complexity hotspots, execution-log-driven false-positive/false-negative test classification), with reviewable diff proposals and an explicit apply-and-verify step."
+module_version: 2.6.0
+default_selected: false
+module_greeting: >
+  Ray is ready to investigate. Point them at any project already indexed in codebase-memory-mcp
+  and say what you need: (1) analyze & fix based on real execution errors/logs — Analyze Test
+  Reliability classifies false positives/negatives across multiple runs (JUnit/Surefire XML,
+  Playwright JSON, Jenkins console), automatically establishing a baseline via Establish
+  Execution Baseline if none exists yet; or (2) refactor code/tests for best practices — Audit
+  All runs all six structural detectors (Dependencies, Instability, Data Issues, Duplication,
+  Complexity, Logging) and produces one ranked report. Logging is the newest: it finds silent
+  catches, exception-dropping logs, and unlogged external calls/loop failure paths — closing
+  those gaps today is what gives tomorrow's Analyze Test Reliability run a real signal instead
+  of a shrug. Ray asks which category you're in if it isn't obvious, then shows only the
+  relevant menu. Every finding cites its evidence; every fix is a reviewable diff — nothing is
+  ever applied automatically unless you explicitly ask for Apply and Verify, which applies a
+  chosen diff for real and runs the target project's own test suite to confirm it.
+
+  Run this module's setup skill at any time to reconfigure, or edit
+  {project-root}/_bmad/rrd/config.yaml directly.
+
+agents:
+  - code: rrd-agent-radar
+    name: "Ray"
+    title: "Refactor Detective"
+    icon: "🔍"
+    description: "Finds test/code reliability defects via the codebase knowledge graph and proposes reviewable diffs. Never edits source directly except via the explicit, owner-invoked Apply and Verify capability."
+
+variables:
+  - key: rrd_artifacts
+    prompt: "Where should Ray write findings summaries and audit reports (not diff proposals, which always go to the target project's own proposals/)?"
+    default: "{project-root}/_bmad-output/rrd-artifacts"
