@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Refactor Radar — Audit Report — C-Users-achaabane-Desktop-BMAD_cursor — 2026-08-06</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; background: #fafafa; }
+  h1 { font-size: 1.5rem; }
+  .meta { color: #666; font-size: 0.9rem; margin-bottom: 2rem; }
+  .family { margin-top: 2.5rem; }
+  .family h2 { border-bottom: 2px solid #ddd; padding-bottom: 0.4rem; }
+  .finding { background: #fff; border: 1px solid #e0e0e0; border-left: 4px solid #999; border-radius: 4px; padding: 1rem 1.25rem; margin: 1rem 0; }
+  .finding.high { border-left-color: #c0392b; }
+  .finding.medium { border-left-color: #d9822b; }
+  .finding.low { border-left-color: #7f8c8d; }
+  .finding h3 { margin: 0 0 0.4rem 0; font-size: 1.05rem; }
+  .badge { display: inline-block; font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 3px; background: #eee; color: #333; margin-left: 0.5rem; }
+  .evidence { font-family: Consolas, monospace; font-size: 0.85rem; background: #f4f4f4; padding: 0.5rem 0.75rem; border-radius: 3px; margin: 0.5rem 0; white-space: pre-wrap; }
+  .proposal-link { font-size: 0.9rem; }
+  .summary-table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+  .summary-table th, .summary-table td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid #eee; }
+  .empty-family { color: #666; font-style: italic; }
+  .caveat { background: #fff8e1; border: 1px solid #ffe082; border-radius: 4px; padding: 0.75rem 1rem; margin: 1rem 0; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+  <h1>Refactor Radar — Audit Report</h1>
+  <div class="meta">Project: C-Users-achaabane-Desktop-BMAD_cursor &middot; Generated: 2026-08-06 &middot; Findings: 4 (across 3 of 4 families)</div>
+
+  <div class="caveat"><strong>Methodology note:</strong> no execution/rerun logs were provided for this run, so Instability and Data Issues findings are static-only (not corroborated against real failures) — confidence levels reflect this. <strong>Correction:</strong> an earlier pass of this report claimed the <code>search_code</code> MCP tool had a "limitation" that missed a real match. Root-caused after the fact: that was operator error, not a tool defect — <code>file_pattern</code> takes a filename glob (e.g. <code>*.spec.ts</code>), and a path glob (<code>tests/**</code>) was passed instead, so grep matched zero files. A second call omitted <code>file_pattern</code> entirely and did find the match, correctly enriched — it was just ranked below the default result limit (the tool explicitly ranks test files last). Re-run with the correct filename glob confirmed all 3 real matches immediately. <code>search_code</code> is not the source of the earlier gap.</div>
+
+  <table class="summary-table">
+    <tr><th>Rank</th><th>Finding</th><th>Family</th><th>Impact</th></tr>
+    <tr><td>1</td><td>Shared live app state couples all 5 CRM spec files</td><td>Dependencies</td><td>High</td></tr>
+    <tr><td>2</td><td>Zero afterEach/afterAll teardown across entire suite</td><td>Data Issues</td><td>High</td></tr>
+    <tr><td>3</td><td>CRM_URL hardcoded with no env override</td><td>Data Issues</td><td>Medium</td></tr>
+    <tr><td>4</td><td>Fixed 600ms wait in deals.spec.ts</td><td>Instability</td><td>Medium</td></tr>
+  </table>
+
+  <div class="family">
+    <h2>Dependencies (47% of reference false-fails)</h2>
+    <div class="finding high">
+      <h3>Shared live app state couples all 5 CRM Playwright spec files<span class="badge">confidence: high</span></h3>
+      <p>All 5 <code>tests/e2e/crm-workspace/*.spec.ts</code> files share one live, unreset external app instance via the <code>crmPage</code> fixture. <code>settings.spec.ts</code>'s delete-all test wipes every deal/contact on that shared instance; <code>deals.spec.ts</code> and <code>contacts.spec.ts</code> assume data already exists. Safety today rests on two unenforced accidents: <code>workers=1</code>/<code>fullyParallel=false</code>, and alphabetical file-run order. Re-confirmed independently this run (first surfaced 2026-08-04, unchanged).</p>
+      <div class="evidence">search_graph(file_pattern="*crm-workspace*") → crmPage fixture in_degree=19
+trace_path(function_name="test", direction=inbound, mode=data_flow) → confirms all 5 spec files reach the same fixture instance
+settings.spec.ts:109-140 (delete-all test); deals.spec.ts:24-49 (assumes existing data); playwright.config.ts:12,15</div>
+      <p class="proposal-link"><a href="./tests__e2e__crm-workspace__settings.spec.ts.1.patch">View proposed diff (settings.spec.ts)</a> &middot; <a href="./playwright.config.ts.1.patch">View proposed diff (playwright.config.ts)</a></p>
+    </div>
+  </div>
+
+  <div class="family">
+    <h2>Instability (18% of reference false-fails)</h2>
+    <div class="finding medium">
+      <h3>Fixed 600ms wait in deals.spec.ts<span class="badge">confidence: medium</span></h3>
+      <p><code>page.waitForTimeout(600)</code> waits out a documented 400ms setTimeout side effect with a 200ms margin — a deliberate tradeoff per its comment, but still a fixed sleep rather than a real wait condition. No execution logs available to corroborate against real flakiness.</p>
+      <div class="evidence">search_code(pattern="waitForTimeout", file_pattern="*.spec.ts") → 3 grep matches, correctly enriched:
+deals.spec.ts:99 (real usage) · settings.spec.ts:17, contacts.spec.ts:14 (comments citing the anti-pattern, not real usages — no finding there)</div>
+      <p class="proposal-link"><a href="./tests__e2e__crm-workspace__deals.spec.ts.1.patch">View proposed diff</a></p>
+    </div>
+  </div>
+
+  <div class="family">
+    <h2>Data Issues (17% of reference false-fails)</h2>
+    <div class="finding high">
+      <h3>Zero afterEach/afterAll teardown across the entire test suite<span class="badge">confidence: high</span></h3>
+      <p>Exhaustive search found no teardown hooks anywhere in <code>tests/</code>. Combined with the Dependencies finding above, every CRM test that creates data leaves it behind for the next test, with no reset/purge path found on the hosted app.</p>
+      <div class="evidence">grep -rln "afterEach\|afterAll" tests/ → zero matches</div>
+      <p class="proposal-link"><a href="./tests__e2e__crm-workspace__crm.fixtures.ts.2.patch">View proposed diff</a></p>
+    </div>
+    <div class="finding medium">
+      <h3>CRM_URL hardcoded with no environment override<span class="badge">confidence: high</span></h3>
+      <p>Unlike <code>SHOPZONE_BASE_URL</code>/<code>BASE_URL</code> elsewhere in this suite (both env-overridable), <code>CRM_URL</code> is a plain literal — blocking per-run/CI isolation and contributing to the Dependencies finding above.</p>
+      <div class="evidence">Direct read: tests/e2e/crm-workspace/crm.fixtures.ts:25 vs shopzone-home.page.ts:4, playwright.config.ts:7</div>
+      <p class="proposal-link"><a href="./tests__e2e__crm-workspace__crm.fixtures.ts.1.patch">View proposed diff</a></p>
+    </div>
+  </div>
+
+  <div class="family">
+    <h2>Duplication (18% of reference false-fails)</h2>
+    <p class="empty-family">No significant duplication found. The suite is small (~400 lines across page objects) and shared helpers (crm.fixtures.ts, toast.ts) already cover common patterns.</p>
+  </div>
+
+</body>
+</html>

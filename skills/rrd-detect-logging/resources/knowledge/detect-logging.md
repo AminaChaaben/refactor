@@ -39,8 +39,51 @@ The indexer doesn't model exception-handling blocks as graph nodes, so use `sear
 | **Exception-dropping log** | Catch block logs a message string but not the original exception/error object (e.g. `log.warn("failed: " + e.getMessage())` instead of passing `e` itself) — breaks stack-trace continuity, the single most common gap that turns a 30-second root-cause lookup into a guessing exercise |
 | **Unlogged external call** | A call to something that can fail (network, DB, driver, filesystem) with no logging on the failure path — no log on a non-2xx response, no log before/after a retry, no log on a timeout |
 | **Unlogged loop failure path** | A loop body containing a failure-capable operation with no per-iteration or per-failure log signal — if iteration 47 of 200 is where things went wrong, nothing points at it |
+| **Context-free stack trace** | Catch block calls `printStackTrace()` (or equivalent) on the real exception object — so, strictly, neither silent nor exception-dropping — but with no operational context (which locator, which URL, which attempt number) and no integration with a structured log/report the test framework actually captures. Weaker than a routed `log.warn(msg, e)` call even though the raw trace technically exists somewhere in console output. Found in a real project's retry-loop and page-load-wait methods, both calling `error.printStackTrace()` with zero indication of *what* was being attempted. |
 
 None of these are findings from the graph query alone — always read the actual code via `get_code_snippet`/`Read` and quote the specific line(s) missing the log statement or dropping the exception object.
+
+## Failure-Classification Tagging
+
+Every missing-log site found above should also be tagged with which failure category it would most likely mask if it fired silently, using the same four-way split `rrd-analyze-test-reliability` uses when classifying a real failure from run history:
+
+| Tag | Fires when the masked failure is... |
+|---|---|
+| **app-error** | A genuine application/business-logic bug (wrong response body, unexpected state, assertion-worthy behavior) |
+| **env-error** | Infrastructure/environment (connection refused, DNS failure, container not ready, resource exhaustion) |
+| **data-error** | Test-data related (record not found, duplicate key, unexpected pre-existing state) |
+| **script-bug** | A bug in the test/automation code itself, not the system under test (wrong locator, off-by-one, bad assertion logic) |
+
+Infer the tag from what the call site actually does, not from the gap type alone: an unlogged external-call site calling a live HTTP endpoint is usually **env-error**-leaning; an unlogged catch block around a data-lookup helper is usually **data-error**-leaning; a silent catch wrapping a locator interaction is usually **script-bug**-leaning (see also `rrd-detect-instability`/`rrd-detect-locators` if that same site is independently flagged there). State the tag as a leaning, not a certainty — the whole point of this axis is that there's currently no log line to confirm which one actually happened; the tag is a hypothesis for the fix's docstring/log-message content (e.g. "log the response status" for an env-leaning site vs. "log the record ID being looked up" for a data-leaning site), not a settled classification.
+
+This tagging directly feeds `rrd-analyze-test-reliability` Step 3: a False Positive candidate whose error text traces back to a site this detector already tagged **env-error** gets that classification for free instead of re-deriving it from scratch.
+
+## The "Silent Catch That Causes a Confusing Downstream Failure" Exception, Worked Example
+
+The "What NOT to Flag" section below carves out an exception for catch blocks whose fallback path could cause a confusing downstream failure with no trace back to the original decision — this is worth a concrete example, since it's easy to under-apply. A static initializer loading a config file, catching `Exception`, calling `printStackTrace()`, and leaving a `Properties` object `null` on failure is *technically* not silent (the trace prints) — but every later call site that reads from that `null` `Properties` object throws an unrelated `NullPointerException`, with nothing connecting that NPE back to "the config file failed to load at startup." This is exactly the exception case: flag it, and propose failing fast (throw a wrapped exception at the point of failure) rather than only adding a log line — a log line alone still leaves the confusing downstream NPE in place, it just adds a second, disconnected signal instead of preventing the disconnect.
+
+## Failure-Diagnostics Capture (Screenshots/Traces)
+
+Distinct from *logging* a failure (a text signal) is *capturing* a failure (a visual/replayable artifact) — a missing screenshot or trace is its own diagnosability gap, common enough in Selenium/Playwright suites to check for explicitly.
+
+### What to Check
+
+Search for the target framework's failure-hook mechanism and confirm it actually captures something:
+
+- **Selenium/TestNG/JUnit**: an `@AfterMethod`/`@AfterEach`(or equivalent)-scoped hook that checks `ITestResult`/test-outcome status and calls a screenshot method (`((TakesScreenshot) driver).getScreenshotAs(...)`) only on failure — not unconditionally (an unconditional screenshot on every test is noise, not a gap fix).
+- **Playwright**: `use.screenshot`/`use.trace` config set to `'only-on-failure'`/`'retain-on-failure'` in `playwright.config.*`, or an explicit `page.screenshot()`/`context.tracing.stop({ path: ... })` call inside a failure branch.
+- **Cypress**: screenshots-on-failure are on by default; check only that `screenshotOnRunFailure` hasn't been explicitly disabled.
+
+### What Counts as a Gap
+
+- No failure-hook mechanism exists at all — a test suite with zero capture-on-failure anywhere.
+- A hook exists but doesn't actually branch on failure (captures unconditionally, or the failure check is dead code).
+- Capture exists for one test runner/browser configuration but not others in a multi-browser/multi-runner suite (partial coverage).
+
+### What NOT to Flag
+
+- A project with `retain-on-failure`/equivalent already correctly configured — say so explicitly as checked-and-clean, don't manufacture a finding.
+- Capturing on every run (not just failure) is a cost/noise concern for the owner to weigh, not a diagnosability gap this detector should flag — the axis is "can I diagnose a failure when it happens," not "should you capture less."
 
 ## Cross-Detector Corroboration
 

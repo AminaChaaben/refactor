@@ -26,7 +26,8 @@ required_tools:
   - mcp__codebase-memory-mcp__index_status
   - mcp__codebase-memory-mcp__search_code
   - mcp__codebase-memory-mcp__search_graph
-  - mcp__codebase-memory-mcp__ingest_traces
+  - Read
+  - Grep
   - write_file
 
 tags:

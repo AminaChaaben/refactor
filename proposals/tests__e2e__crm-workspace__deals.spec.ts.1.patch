@@ -1,0 +1,33 @@
+# Rationale: [Detect Instability] `page.waitForTimeout(600)` waits out a
+# documented 400ms setTimeout side effect with a 200ms safety margin. This is
+# a fixed sleep, not a real wait condition — on a slower CI runner or under
+# load, 600ms may not be enough margin, and on a fast run it wastes 600ms
+# every time regardless. The comment shows this was a deliberate tradeoff
+# (not an accident), but Playwright's auto-retrying assertions make the
+# margin unnecessary: poll for the actual DOM change instead of sleeping a
+# fixed duration. Confidence: medium — single documented instance, not
+# corroborated by execution logs (none were available for this run).
+
+--- a/tests/e2e/crm-workspace/deals.spec.ts
++++ b/tests/e2e/crm-workspace/deals.spec.ts
+@@ -96,8 +96,9 @@
+     await test.step('After 600ms delay Pipeline avg progress is updated', async () => {
+-      // advanceStage() schedules updatePipelineMetrics() with a 400ms setTimeout.
+-      // Explicit wait ensures the callback fires before we assert.
+-      await page.waitForTimeout(600);
++      // advanceStage() schedules updatePipelineMetrics() with a 400ms setTimeout.
++      // Poll for the actual metric to change instead of sleeping a fixed
++      // duration — removes the arbitrary 200ms safety margin and the risk
++      // of it being too short under load.
+       await switchTab(page, 'Pipeline');
+
+-      const afterAvgText = await page.locator('#pipeline-avg').textContent();
+-      const afterAvg = parseInt(afterAvgText ?? '0', 10);
+-      expect(afterAvg).toBeGreaterThan(initialAvg);
++      await expect(async () => {
++        const afterAvgText = await page.locator('#pipeline-avg').textContent();
++        const afterAvg = parseInt(afterAvgText ?? '0', 10);
++        expect(afterAvg).toBeGreaterThan(initialAvg);
++      }).toPass({ timeout: 3_000 });
+     });
+   });

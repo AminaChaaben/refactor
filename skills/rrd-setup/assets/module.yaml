@@ -1,22 +1,24 @@
 code: rrd
 name: "Refactor Radar"
-description: "Graph-and-log-driven detection of test/code reliability and maintainability defects (dependency/cascade, instability, data lifecycle, duplication, complexity hotspots, execution-log-driven false-positive/false-negative test classification), with reviewable diff proposals and an explicit apply-and-verify step."
-module_version: 2.6.0
+description: "Graph-and-log-driven detection of test/code reliability and maintainability defects (dependency/cascade, instability, data lifecycle, duplication, complexity hotspots, logging/diagnosability gaps, config/environment leaks, locator-strategy gaps, architecture layering) plus execution-log-driven false-positive/false-negative test classification and governance/standards auditing — with reviewable diff proposals, an explicit apply-and-verify step, a CI gate, and ticket export."
+module_version: 3.0.0
 default_selected: false
 module_greeting: >
   Ray is ready to investigate. Point them at any project already indexed in codebase-memory-mcp
   and say what you need: (1) analyze & fix based on real execution errors/logs — Analyze Test
   Reliability classifies false positives/negatives across multiple runs (JUnit/Surefire XML,
-  Playwright JSON, Jenkins console), automatically establishing a baseline via Establish
-  Execution Baseline if none exists yet; or (2) refactor code/tests for best practices — Audit
-  All runs all six structural detectors (Dependencies, Instability, Data Issues, Duplication,
-  Complexity, Logging) and produces one ranked report. Logging is the newest: it finds silent
-  catches, exception-dropping logs, and unlogged external calls/loop failure paths — closing
-  those gaps today is what gives tomorrow's Analyze Test Reliability run a real signal instead
-  of a shrug. Ray asks which category you're in if it isn't obvious, then shows only the
-  relevant menu. Every finding cites its evidence; every fix is a reviewable diff — nothing is
-  ever applied automatically unless you explicitly ask for Apply and Verify, which applies a
-  chosen diff for real and runs the target project's own test suite to confirm it.
+  Playwright JSON, Jenkins console), tagging each as app/env/data/script-error, and automatically
+  establishing a baseline via Establish Execution Baseline if none exists yet; or (2) refactor
+  code/tests for best practices — Audit All runs all nine structural detectors (Dependencies,
+  Instability, Data Issues, Duplication, Complexity, Logging, Config, Locators, Layering),
+  optionally scoped incrementally to changed files, and produces one ranked report with a trend
+  against the last run. A completed audit can feed Standards Audit (governance/convention gaps
+  from patterns recurring 3+ times), rrd-ci-gate (pass/fail a pipeline on new Critical findings),
+  or rrd-export-tickets (top-N opportunities as GitLab issues). Ray asks which category you're
+  in if it isn't obvious, then shows only the relevant menu. Every finding cites its evidence;
+  every fix is a reviewable diff — nothing is ever applied automatically unless you explicitly
+  ask for Apply and Verify, which applies a chosen diff for real and runs the target project's
+  own test suite to confirm it.
 
   Run this module's setup skill at any time to reconfigure, or edit
   {project-root}/_bmad/rrd/config.yaml directly.

@@ -13,8 +13,10 @@ Uses an anti-zombie pattern for the module section in config.yaml.
 Legacy migration: when --legacy-dir is provided, reads old per-module config files
 from {legacy-dir}/{module-code}/config.yaml and {legacy-dir}/core/config.yaml.
 Matching values serve as fallback defaults (answers override them). After a
-successful merge, the legacy config.yaml files are deleted. Only the current
-module and core directories are touched — other module directories are left alone.
+successful merge, only this module's own legacy config.yaml is deleted —
+{legacy-dir}/core/config.yaml is read for fallback defaults but never deleted,
+since in a current-generation multi-module install "core" is a live sibling
+module's own config, not necessarily a stale artifact this module owns.
 
 Exit codes: 0=success, 1=validation error, 2=runtime error
 """
@@ -164,18 +166,30 @@ def apply_legacy_defaults(answers: dict, legacy_core: dict, legacy_module: dict)
 def cleanup_legacy_configs(
     legacy_dir: str, module_code: str, verbose: bool = False
 ) -> list:
-    """Delete legacy config.yaml files for this module and core only.
+    """Delete this module's own legacy config.yaml only.
+
+    Deliberately does NOT touch {legacy_dir}/core/config.yaml. In a project using
+    the current-generation BMAD-METHOD installer, "core" is a live, actively-used
+    sibling module directory (its own config.yaml is real, current data owned by
+    that module) — not necessarily a stale artifact of an old rrd-only per-module
+    layout. This script has no way to distinguish "genuinely legacy core config
+    from an old rrd install" from "the current core module's live config" by
+    inspecting the file alone, so the safe default is to never delete it. Its
+    values are still read as fallback defaults in load_legacy_values() — reading
+    is harmless; deleting another module's live config is not. (Real incident:
+    an early version of this function deleted a fresh install's _bmad/core/config.yaml
+    on first run, before this file had ever produced any rrd-specific config to
+    supersede it.)
 
     Returns list of deleted file paths.
     """
     deleted = []
-    for subdir in (module_code, "core"):
-        legacy_path = Path(legacy_dir) / subdir / "config.yaml"
-        if legacy_path.exists():
-            if verbose:
-                print(f"Deleting legacy config: {legacy_path}", file=sys.stderr)
-            legacy_path.unlink()
-            deleted.append(str(legacy_path))
+    legacy_path = Path(legacy_dir) / module_code / "config.yaml"
+    if legacy_path.exists():
+        if verbose:
+            print(f"Deleting legacy config: {legacy_path}", file=sys.stderr)
+        legacy_path.unlink()
+        deleted.append(str(legacy_path))
     return deleted
 
 

@@ -20,8 +20,9 @@ Both config scripts use an anti-zombie pattern — existing entries for this mod
 ## On Activation
 
 1. Read `./assets/module.yaml` for module metadata and variable definitions (the `code` field is the module identifier)
-2. Check if `{project-root}/_bmad/config.yaml` exists — if a section matching the module's code is already present, inform the user this is an update
-3. Check for per-module configuration at `{project-root}/_bmad/rrd/config.yaml` and `{project-root}/_bmad/core/config.yaml`. If either file exists:
+2. **Check for a current-generation installer**: if `{project-root}/_bmad/config.toml` exists, this project is running a newer BMAD-METHOD installer (TOML-based, installer-managed, one `[modules.<code>]` section per module) that this module's own config (`_bmad/config.yaml`/`config.user.yaml`, YAML-based) was not built against. Inform the user plainly: this module will still install and run correctly on its own dedicated config file (`_bmad/rrd/config.yaml`), but it registers itself in the older unified-YAML convention, not `config.toml` — so it won't appear in the current installer's own module listing or `[modules.rrd]` section. This is a known versioning gap, not a failure; proceed with setup as documented below unless the user wants to hold off pending a version-alignment decision.
+3. Check if `{project-root}/_bmad/config.yaml` exists — if a section matching the module's code is already present, inform the user this is an update
+4. Check for per-module configuration at `{project-root}/_bmad/rrd/config.yaml` and `{project-root}/_bmad/core/config.yaml`. If either file exists:
    - If `{project-root}/_bmad/config.yaml` does **not** yet have a section for this module: this is a **fresh install**. Inform the user that installer config was detected and values will be consolidated into the new format.
    - If `{project-root}/_bmad/config.yaml` **already** has a section for this module: this is a **legacy migration**. Inform the user that legacy per-module config was found alongside existing config, and legacy values will be used as fallback defaults.
    - In both cases, per-module config files and directories will be cleaned up after setup.
@@ -38,16 +39,20 @@ Ask the user for values. Show defaults in brackets. Present all values together 
 
 **Module config**: Read each variable in `./assets/module.yaml` that has a `prompt` field. Ask using that prompt with its default value (or legacy value if available).
 
+## Resolve the Python Interpreter
+
+`python3` is not guaranteed to exist on PATH — confirmed absent on at least one real Windows/Git-Bash environment this module was tested in, where only `python`/`py` were available. Before running any script below, resolve the working interpreter once: try `python3 --version`, then `python --version`, then `py --version`, and use the first one that succeeds for every invocation in this skill. Do not assume `python3` and let the command fail silently into a stop — this is a cheap, one-time check, not a per-call retry.
+
 ## Write Files
 
-Write a temp JSON file with the collected answers structured as `{"core": {...}, "module": {...}}` (omit `core` if it already exists). Then run both scripts — they can run in parallel since they write to different files:
+Write a temp JSON file with the collected answers structured as `{"core": {...}, "module": {...}}` (omit `core` if it already exists). Then run both scripts — they can run in parallel since they write to different files (substitute the resolved interpreter from above for `{python}`):
 
 ```bash
-python3 ./scripts/merge-config.py --config-path "{project-root}/_bmad/config.yaml" --user-config-path "{project-root}/_bmad/config.user.yaml" --module-yaml ./assets/module.yaml --answers {temp-file} --legacy-dir "{project-root}/_bmad"
-python3 ./scripts/merge-help-csv.py --target "{project-root}/_bmad/module-help.csv" --source ./assets/module-help.csv --legacy-dir "{project-root}/_bmad" --module-code rrd
+{python} ./scripts/merge-config.py --config-path "{project-root}/_bmad/config.yaml" --user-config-path "{project-root}/_bmad/config.user.yaml" --module-yaml ./assets/module.yaml --answers {temp-file} --legacy-dir "{project-root}/_bmad"
+{python} ./scripts/merge-help-csv.py --target "{project-root}/_bmad/module-help.csv" --source ./assets/module-help.csv --legacy-dir "{project-root}/_bmad" --module-code rrd
 ```
 
-Both scripts output JSON to stdout with results. If either exits non-zero, surface the error and stop. The scripts automatically read legacy config values as fallback defaults, then delete the legacy files after a successful merge. Check `legacy_configs_deleted` and `legacy_csvs_deleted` in the output to confirm cleanup.
+Both scripts output JSON to stdout with results. If either exits non-zero, surface the error and stop. The scripts read legacy config values as fallback defaults, then delete only this module's own legacy file after a successful merge — `{legacy-dir}/core/config.yaml` and `{legacy-dir}/core/module-help.csv` are read for fallback values but deliberately never deleted, since in a current-generation multi-module install "core" is a live sibling module's own file, not necessarily a stale artifact this module owns (a real incident during testing: an earlier version of these scripts deleted a fresh install's `_bmad/core/config.yaml` on first run). Check `legacy_configs_deleted` and `legacy_csvs_deleted` in the output — they should only ever name this module's own path, never a `core/` path.
 
 Run `./scripts/merge-config.py --help` or `./scripts/merge-help-csv.py --help` for full usage.
 
@@ -60,12 +65,12 @@ After writing config, create any output directories that were configured. For fi
 After both merge scripts complete successfully, remove the installer's package directories. Skills and agents in these directories are already installed at `.claude/skills/` — the `_bmad/` directory should only contain config files.
 
 ```bash
-python3 ./scripts/cleanup-legacy.py --bmad-dir "{project-root}/_bmad" --module-code rrd --also-remove _config --skills-dir "{project-root}/.claude/skills"
+{python} ./scripts/cleanup-legacy.py --bmad-dir "{project-root}/_bmad" --module-code rrd --also-remove _config --skills-dir "{project-root}/.claude/skills"
 ```
 
-The script verifies that every skill in the legacy directories exists at `.claude/skills/` before removing anything. Directories without skills (like `_config/`) are removed directly. If the script exits non-zero, surface the error and stop. Missing directories (already cleaned by a prior run) are not errors — the script is idempotent.
+The script verifies that every skill in the directories being removed exists at `.claude/skills/` before removing anything, and never includes `core` in that removal list automatically (see the note above — `--also-remove` only ever names directories this module's own install actually created, never `core`). Directories without skills (like `_config/`) are removed directly. If the script exits non-zero, surface the error and stop. Missing directories (already cleaned by a prior run) are not errors — the script is idempotent.
 
-Check `directories_removed` and `files_removed_count` in the JSON output for the confirmation step. Run `./scripts/cleanup-legacy.py --help` for full usage.
+Check `directories_removed` and `files_removed_count` in the JSON output for the confirmation step — `directories_removed` should never contain `core` (see above). Run `{python} ./scripts/cleanup-legacy.py --help` for full usage.
 
 ## Write the Module-Level Config Mirror
 

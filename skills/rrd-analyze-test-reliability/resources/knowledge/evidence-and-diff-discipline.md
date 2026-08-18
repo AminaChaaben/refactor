@@ -32,3 +32,7 @@ A real audit run once nearly reported `search_code` as "unreliable" for missing 
 ## Tool Usage Discipline: `ingest_traces` does not ingest test logs
 
 `ingest_traces` only accepts `{caller, callee, count}` call-frequency triples — it has no concept of test pass/fail and cannot parse JUnit XML, Jenkins console output, or Playwright reports. This workflow's log parsing is a separate, from-scratch capability using `Read`/`Grep`/`Bash` — see `analyze-test-reliability.md` Step 1. Do not attempt to route log files through `ingest_traces`.
+
+## Tool Usage Discipline: prefer `get_code_snippet` over direct file reads (for source, not logs)
+
+When step-03's classification invokes a detector skill scoped to a flagged file/class/method (per `analyze-test-reliability.md` Step 3), confirm the flagged source via `mcp__codebase-memory-mcp__get_code_snippet(qualified_name=...)` rather than a plain `Read`, for the same reason every detector prefers it: cheaper, faster, and it returns precomputed graph properties (complexity, cognitive load, etc.) a raw file read doesn't. This applies to reading *source code* candidates — it does not apply to log files/execution reports, which are never in the graph and are always read via `Read`/`Grep`/`Bash` as this fragment's Step 1 already establishes.

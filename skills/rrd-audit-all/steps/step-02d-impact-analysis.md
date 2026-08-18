@@ -28,6 +28,13 @@ Input:
 Output:
 - Opportunity[] (enriched with impact, risk, effort, confidence)
 
+## PREREQUISITE ARTIFACTS
+
+Before starting this step, verify:
+- [ ] `{project-root}/.refactor-radar-work/opportunities.json` exists and is valid JSON (from step-02c)
+- [ ] Each opportunity has `supporting_findings`, `title`, `description` (not yet impact/risk/effort/confidence)
+- If checks fail, **HALT**. Step-02c did not complete successfully. Do not proceed.
+
 ## SEQUENCE
 
 ### 0. Load Input
@@ -37,7 +44,7 @@ Read opportunities from step-02c:
 read {project-root}/.refactor-radar-work/opportunities.json → Opportunity[]
 ```
 
-Verify file exists. If missing, halt with error: "Missing opportunities.json from step-02c"
+**Critical:** File must exist. If missing, halt with error: "Missing opportunities.json from step-02c — that step did not complete successfully."
 
 ### 1. Resolve Target Nodes
 
@@ -309,7 +316,8 @@ Impact Analysis Complete:
     Effort: Medium (47 lines, moderate scope)
 ```
 
-### 12. Write Enriched Opportunities
+
+### 13. Write Enriched Opportunities
 
 Overwrite opportunities.json with impact metrics added:
 ```bash
@@ -320,7 +328,30 @@ Each Opportunity now includes `impact`, `risk`, `effort`, `confidence` fields.
 
 **Do NOT yet include** `priority` (added by step-02e).
 
-### 13. Continue
+## ⚠️ CRITICAL CHECKPOINT: BEFORE PROCEEDING TO STEP-02E
+
+**Do not skip this validation. Do not proceed without confirming all of the below.**
+
+Verify:
+- [ ] File `opportunities.json` has been overwritten (check file modification time)
+- [ ] Every opportunity has: `impact.direct`, `impact.transitive`, `risk`, `effort`, `confidence`
+- [ ] `confidence` is a percentage (0-100 integer), and is justified by finding_consensus + evidence_strength + execution_evidence
+- [ ] `impact.direct.total` = fan_in_count + fan_out_count (not a duplicate of either)
+- [ ] `risk.level` is one of: Low, Medium, High
+- [ ] `effort.refactor_scope` is one of: Small, Moderate, Large
+- [ ] No NaN, infinity, or null values in any numeric field
+- [ ] For all opportunities: check spot-samples via the debug output — does the impact analysis make sense given the affected files/tests?
+
+If any validation fails, **HALT**. Do not proceed to step-02e. Report the failure.
+
+If all validations pass, report:
+```
+Step 02d complete: impact analysis on {num_opportunities} opportunities complete
+  Example: OPP-001 has {impact.direct.total} direct, {num_transitive} transitive impact, {risk.level} risk, {confidence}% confidence
+Ready to proceed to step-02e (Ranking)
+```
+
+### 14. Continue
 
 Load and proceed to `./step-02e-ranking.md`.
 

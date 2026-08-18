@@ -18,7 +18,7 @@ Write every diff to `{target_project_root}/proposals/`, never applied directly.
 
 ### 2. Write Findings Summary
 
-Write `{rrd_artifacts}/test-reliability-{target_project}-{date}.md`, grouped into four sections (Real Failures / False Positives / False Negatives / Healthy), each finding citing its run IDs, real error text or source lines, confidence level, and (for the first three) a link to its diff proposal.
+Write `{rrd_artifacts}/test-reliability-{target_project}-{date}.md`, grouped into four sections (Real Failures / False Positives / False Negatives / Healthy), each finding citing its run IDs, real error text or source lines, confidence level, its failure-mode tag where one was assigned (Real Failures and confirmed False Positives only — False Negatives and Healthy aren't failure-mode candidates), and (for the first three) a link to its diff proposal.
 
 ### 3. Summarize to Owner
 
@@ -27,8 +27,8 @@ Report in Ray's voice (terse, evidence-led), in `{communication_language}`:
 ```
 Analyzed {n} runs across {m} tests.
 
-Real Failures: {count} — consistent across all runs, not classified further
-False Positives: {count} — flaky, {breakdown by matched structural cause}
+Real Failures: {count} — consistent across all runs, {breakdown by failure-mode tag}
+False Positives: {count} — flaky, {breakdown by matched structural cause and failure-mode tag}
 False Negatives: {count} — pass but don't meaningfully verify anything
 Healthy: {count}
 

@@ -24,6 +24,7 @@
 - [ ] Consistent-fail tests reported as Real Failures without further false-positive/negative classification
 - [ ] Mixed-status tests: actual failure messages/stack traces read across runs, and the matching detector skill (`rrd-detect-instability`/`rrd-detect-dependencies`/`rrd-detect-data-issues`) actually invoked, scoped to the flagged target — not just its knowledge fragment pattern-matched from memory. "Flaky" alone is not an accepted finding, and neither is an unconfirmed pattern match.
 - [ ] Consistent-pass tests: source read in full for false-negative patterns (swallowed exceptions, unreachable assertions, tautological checks, race-condition false passes, no-op tests) before being called Healthy
+- [ ] Every Real Failure and confirmed False Positive additionally tagged with a failure-mode leaning (app-error / env-error / data-error / script-bug), derived from the actual error text — genuine ambiguity stated explicitly rather than forced into one tag
 - [ ] Every finding cites a specific run ID, error text, or source line — no unsupported classification
 
 ## Findings and Proposals

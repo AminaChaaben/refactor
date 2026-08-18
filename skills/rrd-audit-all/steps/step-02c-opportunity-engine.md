@@ -23,6 +23,13 @@ Input:
 Output:
 - Opportunity[] (one or more groupings of findings)
 
+## PREREQUISITE ARTIFACTS
+
+Before starting this step, verify:
+- [ ] `{project-root}/.refactor-radar-work/findings.json` exists and is valid JSON (from step-02)
+- [ ] `{project-root}/.refactor-radar-work/correlations.json` exists and is valid JSON (from step-02b)
+- If either check fails, **HALT**. A prior step did not complete successfully. Do not proceed.
+
 ## SEQUENCE
 
 ### 0. Load Inputs
@@ -33,7 +40,7 @@ read {project-root}/.refactor-radar-work/findings.json → Finding[]
 read {project-root}/.refactor-radar-work/correlations.json → Correlation[]
 ```
 
-Verify both files exist. If missing, halt with error: "Missing findings.json or correlations.json"
+**Critical:** Both files must exist. If either is missing, halt with error: "Missing findings.json or correlations.json — prior steps did not complete successfully."
 
 ### 1. Validate Inputs
 
@@ -191,7 +198,8 @@ Opportunity Engine Complete:
     - Average: {avg_size} findings
 ```
 
-### 13. Write Opportunities
+
+### 14. Write Opportunities
 
 Serialize grouped opportunities to JSON:
 ```bash
@@ -202,7 +210,27 @@ Opportunity[] structure per DATA_FLOW.md. Include all synthesized fields (title,
 
 **Do NOT yet include** impact metrics, risk, effort, confidence, priority (those are added by step-02d and 02e).
 
-### 14. Continue
+## ⚠️ CRITICAL CHECKPOINT: BEFORE PROCEEDING TO STEP-02D
+
+**Do not skip this validation. Do not proceed without confirming all of the below.**
+
+Verify:
+- [ ] File exists: `{project-root}/.refactor-radar-work/opportunities.json`
+- [ ] File is valid JSON
+- [ ] Every opportunity has: `id`, `title`, `description`, `problem_statement`, `supporting_findings`, `root_causes`, `recommendation`
+- [ ] Every opportunity's `supporting_findings` array references Finding IDs that exist in `findings.json`
+- [ ] Union-Find grouping is correct (use the debug output to spot-check): opportunities with strong correlations are grouped, medium-correlated findings within the same component stay grouped
+- [ ] Component sizes are reasonable (no single opportunity has > 50 findings unless deliberately grouped)
+
+If any validation fails, **HALT**. Do not proceed to step-02d. Report the failure and ask for re-run.
+
+If all validations pass, report:
+```
+Step 02c complete: {num_opportunities} opportunities created (largest component: {max_size} findings)
+Ready to proceed to step-02d (Impact Analysis)
+```
+
+### 15. Continue
 
 Load and proceed to `./step-02d-impact-analysis.md`.
 

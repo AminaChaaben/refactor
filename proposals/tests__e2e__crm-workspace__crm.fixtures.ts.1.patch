@@ -1,0 +1,20 @@
+# Rationale: [Detect Data Issues] `CRM_URL` is a hardcoded literal with no
+# environment override, unlike `SHOPZONE_BASE_URL`/`BASE_URL` elsewhere in
+# this suite, which both support `process.env` override. This blocks
+# pointing the CRM suite at an isolated/ephemeral instance per run or per
+# CI job — one contributing factor to the shared-live-state coupling flagged
+# in Detect Dependencies. Confidence: high — direct code read, consistent
+# with the externalization pattern already used by the other two page
+# families in this suite.
+
+--- a/tests/e2e/crm-workspace/crm.fixtures.ts
++++ b/tests/e2e/crm-workspace/crm.fixtures.ts
+@@ -22,7 +22,8 @@
+ export { expect };
+
+-export const CRM_URL = 'https://ekhdem.netlify.app/';
++// Externalized for the same reason SHOPZONE_BASE_URL/BASE_URL are: allows
++// pointing at an isolated instance per run/CI job instead of the shared default.
++export const CRM_URL = process.env.CRM_BASE_URL ?? 'https://ekhdem.netlify.app/';
+
+ export type Tab = 'Deals' | 'Contacts' | 'Pipeline' | 'Settings';

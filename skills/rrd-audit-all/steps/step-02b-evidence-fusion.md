@@ -18,6 +18,13 @@ Load these knowledge fragments:
 - `finding-and-correlation-model.md` (data structures)
 - `evidence-fusion-heuristics.md` (rules for detecting each correlation type)
 
+## PREREQUISITE ARTIFACTS
+
+Before starting this step, verify:
+- [ ] `{project-root}/.refactor-radar-work/findings.json` exists and is valid JSON (from step-02)
+- [ ] Contains at least 1 Finding with required fields
+- If either check fails, **HALT**. Step-02 did not complete successfully. Do not proceed.
+
 ## SEQUENCE
 
 ### 0. Load Inputs
@@ -27,7 +34,7 @@ Read findings from step-02 output:
 read {project-root}/.refactor-radar-work/findings.json → Finding[]
 ```
 
-Verify file exists. If missing, halt with error: "Missing findings.json from step-02"
+**Critical:** File must exist. If missing, halt with error: "Missing findings.json from step-02 — that step did not complete successfully."
 
 ### 1. Preserve Raw Findings
 
@@ -204,26 +211,17 @@ For each pair of findings (A, B), attempt to detect a correlation by evaluating 
 - Use semantic similarity alone to create Strong/Medium correlations
 - Cascade correlations (A↔B and B↔C does not imply A↔C)
 
-### 4. Debug Output
 
-Include in the workflow summary:
+### 5. Output Debug Summary
+
+Include in the workflow output:
 - Total findings: {count}
-- Strong correlations: {count}
-- Medium correlations: {count}
-- Weak correlations: {count}
-- Ungrouped findings (no correlation): {count}
+- Strong correlations: {count} (list finding_ids for each)
+- Medium correlations: {count} (list finding_ids for each)
+- Weak correlations: {count} (list finding_ids for each)
+- Standalone findings (no correlation): {count}
 
-Example:
-```
-Evidence Fusion Complete:
-  Raw findings: 47
-  Strong correlations: 3 (DI-014↔DU-032, DI-089↔DD-045, DI-102↔DU-117)
-  Medium correlations: 7
-  Weak correlations: 2
-  Standalone findings: 35
-```
-
-### 5. Write Correlations
+### 6. Write Correlations
 
 Serialize correlations to JSON for Phase 3 processing:
 ```bash
@@ -232,8 +230,25 @@ write {project-root}/.refactor-radar-work/correlations.json [Correlation[]]
 
 Correlation[] must include all detected correlations (Strong, Medium, Weak), sorted by strength.
 
-Include the debug summary in the workflow output.
+## ⚠️ CRITICAL CHECKPOINT: BEFORE PROCEEDING TO STEP-02C
 
-### 6. Continue
+**Do not skip this validation. Do not proceed without confirming all of the below.**
+
+Verify:
+- [ ] File exists: `{project-root}/.refactor-radar-work/correlations.json`
+- [ ] File is valid JSON
+- [ ] Every correlation has: `finding_ids`, `strength` (one of: strong, medium, weak), `evidence`, `reasoning`
+- [ ] All `finding_ids` referenced in correlations exist in the original `findings.json` (no orphaned references)
+- [ ] Correlations are sorted by strength (strong first, weak last)
+
+If any validation fails, **HALT**. Do not proceed to step-02c. Report the failure and ask for re-run.
+
+If all validations pass, report:
+```
+Step 02b complete: {num_strong} strong, {num_medium} medium, {num_weak} weak correlations written to correlations.json
+Ready to proceed to step-02c (Opportunity Engine)
+```
+
+### 7. Continue
 
 Load and proceed to `./step-02c-opportunity-engine.md`.

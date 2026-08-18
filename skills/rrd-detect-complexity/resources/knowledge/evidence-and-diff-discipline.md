@@ -32,6 +32,18 @@ A real audit run once nearly reported `search_code` as "unreliable" for missing 
 
 A "the tool missed it" conclusion should be the last resort, not the first — re-run with a narrower, correctly-scoped query before writing that into a report.
 
+## Tool Usage Discipline: prefer `get_code_snippet` over direct file reads
+
+Once `search_code`/`search_graph`/`query_graph` has narrowed to a candidate symbol, confirm it with `mcp__codebase-memory-mcp__get_code_snippet(qualified_name=...)`, not the generic filesystem `Read` tool. This is a standing preference, not a situational one — apply it by default on every confirmation step across every detection workflow.
+
+Reasons this is the default, not just a style preference:
+
+1. **Cheaper and faster.** The graph is already indexed; `get_code_snippet` returns exact source by qualified name in one call. A filesystem `Read` re-parses the file from scratch and often pulls in more surrounding context than needed.
+2. **Carries more evidence per call.** `get_code_snippet` returns the same precomputed properties `query_graph` exposes (`complexity`, `cognitive`, `loop_depth`, `transitive_loop_depth`, `param_count`, etc.) alongside the source — a direct file read gets you the text and nothing else. A finding confirmed via `get_code_snippet` can cite a cross-detector metric for free (e.g. a config/env-switch finding whose method also happens to trip Detect Complexity's own thresholds) that a plain `Read` would never surface.
+3. **`include_neighbors=true` extends this further** when a finding's fix depends on understanding callers/callees, without a second tool round-trip.
+
+Fall back to `Read`/`Grep` only when the target genuinely isn't in the graph (non-code config/text files the indexer doesn't model as symbols — e.g. raw `.properties`, `.xml`, `.yaml` files) or when `get_code_snippet`'s ambiguous-name suggestions can't resolve to the exact symbol. Say so explicitly when falling back rather than defaulting to `Read` out of habit.
+
 ## Tool Usage Discipline: metrics and similarity scores are not findings by themselves
 
 `query_graph` exposes precomputed properties (`complexity`, `cognitive`, `loop_depth`, `transitive_loop_depth`, etc.) and precomputed edges (`SIMILAR_TO` with a `jaccard` score) that are exact and graph-computed — always prefer these over estimating the same thing by eye. But a metric crossing a threshold, or an edge with a high score, tells you **where to look**, not that a finding is real or worth fixing. Always call `get_code_snippet` and read the actual source before writing up the finding — name the concrete pattern causing the number (e.g. "7 near-identical try/except blocks"), don't just restate the metric.

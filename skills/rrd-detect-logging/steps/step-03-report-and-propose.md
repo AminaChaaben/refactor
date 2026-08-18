@@ -10,11 +10,11 @@ nextStepFile: null
 
 ### 1. Write Findings Summary
 
-Write `{rrd_artifacts}/detect-logging-{target_project}-{date}.md`: each finding grouped by gap type (Silent Catch / Exception-Dropping Log / Unlogged External Call / Unlogged Loop Failure Path), naming the function/method, file:line, the confirmed source-level gap, and evidence citation (the exact `query_graph`/`search_code` call and result).
+Write `{rrd_artifacts}/detect-logging-{target_project}-{date}.md`: each logging-gap finding grouped by gap type (Silent Catch / Exception-Dropping Log / Unlogged External Call / Unlogged Loop Failure Path / Context-Free Stack Trace), naming the function/method, file:line, the confirmed source-level gap, its failure-classification tag, and evidence citation (the exact `query_graph`/`search_code` call and result). Report the Failure-Diagnostics Capture check as its own section, separate from the logging-gap findings — state plainly whether it's present-and-correct, present-but-gapped (which browsers/runners lack coverage), or absent entirely.
 
 ### 2. Write Diff Proposals
 
-For each finding, write a concrete diff to `{target_project_root}/proposals/` adding (or fixing) the logging statement at the specific site — include the original exception object where one was being dropped, not a generic "add logging" comment.
+For each logging-gap finding, write a concrete diff to `{target_project_root}/proposals/` adding (or fixing) the logging statement at the specific site — include the original exception object where one was being dropped, and let the failure-classification tag shape what the log message actually captures (response status for env-leaning, record ID for data-leaning, etc.), not a generic "add logging" comment. For a Failure-Diagnostics Capture gap, propose the specific failure-hook addition (e.g. the `@AfterMethod` status-check-plus-screenshot block, or the `playwright.config.*` option) rather than a generic "add screenshots" note.
 
 ### 3. Summarize to Owner
 

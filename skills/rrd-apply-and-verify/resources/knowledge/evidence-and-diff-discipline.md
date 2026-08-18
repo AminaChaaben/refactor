@@ -21,3 +21,5 @@ Report real pass/fail counts pulled from the target project's own test-report fo
 ## Tool Usage Discipline: read the full file before applying a diff
 
 A diff was written against excerpts and understanding at proposal time. Always read the full current file(s) before applying — see `apply-and-verify-heuristics.md` for the real example (a proposed test merge that turned out to break a deliberate `@Nested` grouping once the whole file was read) that motivated this rule.
+
+**This is the one detector-family workflow where a plain `Read` of the full target file is correct, not a fallback** — the point here is deliberately reading the *entire current file* on disk immediately before a filesystem write, not confirming a graph-indexed symbol. `get_code_snippet` returns a symbol's snippet as of the last index run, which may predate the exact pre-apply state this rule requires. Every other Refactor Radar workflow's *investigation* phase should still prefer `get_code_snippet` over `Read` when confirming a candidate finding — this exception is specific to the immediate pre-apply full-file read.

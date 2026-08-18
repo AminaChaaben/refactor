@@ -9,9 +9,12 @@ Reads a source CSV with module help entries and merges them into a target CSV.
 Uses an anti-zombie pattern: all existing rows matching the source module code
 are removed before appending fresh rows.
 
-Legacy cleanup: when --legacy-dir and --module-code are provided, deletes old
-per-module module-help.csv files from {legacy-dir}/{module-code}/ and
-{legacy-dir}/core/. Only the current module and core are touched.
+Legacy cleanup: when --legacy-dir and --module-code are provided, deletes this
+module's own old per-module module-help.csv from {legacy-dir}/{module-code}/.
+{legacy-dir}/core/module-help.csv is deliberately never touched — in a current-
+generation multi-module install, "core" is a live sibling module's own file,
+not necessarily a stale artifact this module owns (see merge-config.py's
+cleanup_legacy_configs() for the incident that motivated this).
 
 Exit codes: 0=success, 1=validation error, 2=runtime error
 """
@@ -124,18 +127,19 @@ def write_csv(path: str, header: list[str], rows: list[list[str]], verbose: bool
 def cleanup_legacy_csvs(
     legacy_dir: str, module_code: str, verbose: bool = False
 ) -> list:
-    """Delete legacy per-module module-help.csv files for this module and core only.
+    """Delete this module's own legacy module-help.csv only.
+
+    Never touches {legacy_dir}/core/module-help.csv — see module docstring.
 
     Returns list of deleted file paths.
     """
     deleted = []
-    for subdir in (module_code, "core"):
-        legacy_path = Path(legacy_dir) / subdir / "module-help.csv"
-        if legacy_path.exists():
-            if verbose:
-                print(f"Deleting legacy CSV: {legacy_path}", file=sys.stderr)
-            legacy_path.unlink()
-            deleted.append(str(legacy_path))
+    legacy_path = Path(legacy_dir) / module_code / "module-help.csv"
+    if legacy_path.exists():
+        if verbose:
+            print(f"Deleting legacy CSV: {legacy_path}", file=sys.stderr)
+        legacy_path.unlink()
+        deleted.append(str(legacy_path))
     return deleted
 
 

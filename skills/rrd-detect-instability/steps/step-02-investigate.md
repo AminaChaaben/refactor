@@ -18,7 +18,7 @@ Use `search_code`/`search_graph` to find:
 
 ### 2. Log Correlation (If Available)
 
-If the owner provided execution logs, run `ingest_traces` and cross-check each static candidate against real failure/rerun evidence. Mark corroborated findings high confidence; uncorroborated but structurally risky findings lower priority — say so explicitly.
+If the owner provided execution logs, read them directly (`Read`/`Grep`, matching the log's real format) and cross-check each static candidate against real failure/rerun evidence by file/line and test name — `ingest_traces` does not do this (see `detect-instability.md`'s Tool Note; it's currently a no-op on the server). Mark corroborated findings high confidence; uncorroborated but structurally risky findings lower priority — say so explicitly.
 
 ### 3. Continue
 

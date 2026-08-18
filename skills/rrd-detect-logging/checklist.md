@@ -16,14 +16,16 @@
 - [ ] `query_graph` run for `loop_depth >= 1 OR transitive_loop_depth >= 1` to locate failure-capable loops
 - [ ] `search_code` run for the language's exception-handling syntax (`catch`/`except`/`rescue`/`.catch(`) scoped to the target project
 - [ ] Every candidate confirmed by reading actual source via `get_code_snippet`/`Read` — the concrete gap (silent catch, dropped exception, unlogged external call, unlogged loop failure path) is named, not just inferred from the query
+- [ ] Every confirmed gap tagged with a failure-classification leaning (app-error / env-error / data-error / script-bug), stated as a leaning not a certainty
+- [ ] Failure-diagnostics capture (screenshot/trace on failure) checked for the target's test framework — reported as present-and-correct, present-but-gapped, or absent
 - [ ] Checked whether each candidate is also flagged by Detect Instability or Detect Dependencies (cross-detector corroboration) before finalizing confidence
 
 ## Findings and Proposals
 
-- [ ] Every finding names the function/method, file:line, and the confirmed gap type
+- [ ] Every finding names the function/method, file:line, the confirmed gap type, and its failure-classification tag (where applicable)
 - [ ] Every fix proposes the actual logging statement (including the original exception object where one was dropped), not a generic "add logging" note
 - [ ] Every fix written as a diff to the target project's `proposals/`
-- [ ] Findings inside test methods themselves (as opposed to the application/framework code under test) are flagged as such and deprioritized unless the owner asked otherwise
+- [ ] Findings inside test methods themselves (as opposed to the application/framework code under test) are flagged as such and deprioritized unless the owner asked otherwise — except failure-diagnostics capture findings, which live in test infrastructure by definition
 
 ## Completion Criteria
 

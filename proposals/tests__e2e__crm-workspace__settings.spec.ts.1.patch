@@ -1,0 +1,49 @@
+# Rationale: All 5 crm-workspace spec files (contacts, deals, notifications,
+# pipeline, settings) share one live, unreset external app instance
+# (CRM_URL = https://ekhdem.netlify.app/, see crm.fixtures.ts) via the
+# `crmPage` fixture (in_degree=19 in the codebase-memory-mcp graph — used by
+# every test in all 5 files, confirmed via trace_path inbound/data_flow on
+# `test` from crm.fixtures.ts). settings.spec.ts's "[P0] Confirming deletion
+# clears all app data" test (line 109) wipes every deal and contact on that
+# shared instance. deals.spec.ts's "[P0][smoke] View existing deals on load"
+# (line 24) and contacts.spec.ts both assert data already exists on load.
+#
+# Today this is masked by two accidents, neither of which is enforced in
+# code: (1) playwright.config.ts pins workers=1 and fullyParallel=false, so
+# there's no race — but nothing stops a future edit from flipping either
+# flag; (2) Playwright's default file discovery order happens to run
+# settings.spec.ts alphabetically last within crm-workspace/, so the
+# delete-all test runs after the others need their data — but nothing
+# enforces that either. Renaming this file to sort earlier (e.g.
+# "app-settings.spec.ts"), or adding a new crm-workspace spec file that
+# sorts after "settings", silently reintroduces the cascade with zero
+# change to the tests themselves. This is a textbook dependency/cascade
+# root cause: order-dependence + shared live external state, no
+# per-test data isolation.
+#
+# This proposal only documents the hazard inline so it can't be broken by
+# accident — it does not attempt a structural fix (e.g. per-test data
+# scoping or a reset API), since no reset/seed API for the hosted app was
+# found in the graph and one shouldn't be invented. Confidence: high on the
+# coupling being real; medium on likelihood of near-term breakage, since it
+# requires a filename/ordering change to trigger.
+
+--- a/tests/e2e/crm-workspace/settings.spec.ts
++++ b/tests/e2e/crm-workspace/settings.spec.ts
+@@ -105,6 +105,15 @@
+     await page.getByRole('button', { name: 'Cancel' }).click();
+   });
+
++  // ⚠️ ORDER-DEPENDENCE HAZARD (Refactor Radar / Ray — Detect Dependencies):
++  // This test wipes ALL deals and contacts on the shared live app instance
++  // (CRM_URL in crm.fixtures.ts) that every other crm-workspace spec file
++  // also runs against via the same `crmPage` fixture. deals.spec.ts's
++  // "View existing deals on load" and contacts.spec.ts both assume data
++  // already exists. Safety today relies ENTIRELY on this file sorting
++  // alphabetically last within tests/e2e/crm-workspace/ and on
++  // playwright.config.ts's workers=1 / fullyParallel=false. Do not rename
++  // this file, add a crm-workspace spec that sorts after "settings", or
++  // change worker/parallelism config without re-validating this ordering.
+   // ─── @p0 ──────────────────────────────────────────────────────────────────
+   test('[P0] Confirming deletion clears all app data', async ({ crmPage: page }) => {
+     await test.step('Seed at least 1 deal (already present from initial load)', async () => {

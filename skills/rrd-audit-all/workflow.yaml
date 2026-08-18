@@ -1,7 +1,7 @@
 # Refactor Detective workflow: rrd-audit-all
 name: rrd-audit-all
 # prettier-ignore
-description: 'Run all four detectors against a project and produce one consolidated HTML report ranked by estimated false-fail impact. Use when the user says "audit all" or "run a full refactor radar audit"'
+description: 'Run all nine detectors against a project (optionally scoped incrementally to changed files) and produce one consolidated HTML report, ranked by estimated false-fail impact, with a trend vs. the prior run. Use when the user says "audit all" or "run a full refactor radar audit"'
 
 config_source: "{project-root}/_bmad/rrd/config.yaml"
 output_folder: "{config_source}:output_folder"
@@ -29,7 +29,11 @@ required_tools:
   - mcp__codebase-memory-mcp__query_graph
   - mcp__codebase-memory-mcp__trace_path
   - mcp__codebase-memory-mcp__search_code
-  - mcp__codebase-memory-mcp__ingest_traces
+  - mcp__codebase-memory-mcp__get_code_snippet
+  - mcp__codebase-memory-mcp__get_architecture
+  - mcp__codebase-memory-mcp__detect_changes
+  - Read
+  - Grep
   - write_file
 
 tags:

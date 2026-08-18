@@ -6,14 +6,22 @@
 """Remove legacy module directories from _bmad/ after config migration.
 
 After merge-config.py and merge-help-csv.py have migrated config data and
-deleted individual legacy files, this script removes the now-redundant
-directory trees. These directories contain skill files that are already
-installed at .claude/skills/ (or equivalent) — only the config files at
-_bmad/ root need to persist.
+deleted individual legacy files, this script removes this module's own
+now-redundant directory tree (plus any directory explicitly named via
+--also-remove). It deliberately never removes {bmad-dir}/core/ — in a
+current-generation multi-module install, that directory can hold live,
+in-use data (e.g. a v6-compatibility shim directory) that has nothing to
+do with this module and contains no SKILL.md the skills-installed safety
+check would catch, since that check only verifies and blocks when skill
+folders are actually found — a config/shim-only directory sails through
+unverified and would be deleted whole. Pass "core" explicitly via
+--also-remove only if you have independently confirmed nothing else in
+that directory is still needed.
 
 When --skills-dir is provided, the script verifies that every skill found
-in the legacy directories exists at the installed location before removing
-anything. Directories without skills (like _config/) are removed directly.
+in the directories being removed exists at the installed location before
+removing anything. Directories without skills (like _config/) are removed
+directly, since there is nothing to verify.
 
 Exit codes: 0=success (including nothing to remove), 1=validation error, 2=runtime error
 """
@@ -203,8 +211,15 @@ def main():
     bmad_dir = args.bmad_dir
     module_code = args.module_code
 
-    # Build the list of directories to remove
-    dirs_to_remove = [module_code, "core"] + args.also_remove
+    # Build the list of directories to remove. "core" is deliberately NOT
+    # auto-included — see module docstring for the incident that motivated this.
+    dirs_to_remove = [module_code] + args.also_remove
+    if "core" in dirs_to_remove and args.verbose:
+        print(
+            "WARNING: 'core' passed explicitly via --also-remove — proceeding, "
+            "but this directory may belong to a live sibling module.",
+            file=sys.stderr,
+        )
     # Deduplicate while preserving order
     seen = set()
     unique_dirs = []

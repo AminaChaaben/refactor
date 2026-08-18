@@ -49,6 +49,10 @@ Aggregate real `tests run / failures / errors / skipped` counts across every aff
 
 If a diff was expected to change test coverage (e.g. closing a gap by adding an inherited test), note the before/after count explicitly — this is concrete proof the change did what it claimed, not just that it compiles.
 
-### 6. Continue
+### 6. Detect Regression (Feeds Step 4's Rollback Decision)
+
+A **regression** is a specific new failure in the full-suite run that was not failing before this diff was applied — not "the suite has failures" in general, since a pre-existing unrelated failure isn't this diff's fault. If a baseline pre-diff run isn't already available for comparison, run the full suite once more against a clean `git stash` of the just-applied diff to establish one, then restore the diff — don't guess whether a failure is new. Record explicitly, per diff: no regression / regression (naming the specific newly-failing test(s)).
+
+### 7. Continue
 
 Load `./step-04-report.md`.

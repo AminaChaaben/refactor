@@ -40,14 +40,22 @@ For every candidate, call `get_code_snippet`/`Read` and check for these patterns
 
 Do not flag from the query results alone — name the concrete gap after reading the actual code.
 
-### 3. Check Cross-Detector Corroboration
+### 3. Tag Failure Classification
+
+For every confirmed gap, tag which failure category it would most likely mask (app-error / env-error / data-error / script-bug), per `detect-logging.md`'s Failure-Classification Tagging section — infer from what the call site actually does, state it as a leaning not a certainty, and let it inform the fix's log-message content (e.g. log the response status for an env-leaning site, the record ID for a data-leaning site).
+
+### 4. Check Failure-Diagnostics Capture
+
+Independent of the catch-block/logging sweep above, check whether the target's test-failure hook actually captures a screenshot/trace on failure — per `detect-logging.md`'s Failure-Diagnostics Capture section. Search for the framework's failure-hook mechanism (`@AfterMethod`/`@AfterEach` + status check + screenshot call for Selenium/TestNG/JUnit; `screenshot`/`trace` config in `playwright.config.*` for Playwright; `screenshotOnRunFailure` for Cypress) and confirm it actually branches on failure rather than firing unconditionally or being dead code. Report "already configured correctly" explicitly if that's what's found — this is a binary presence/absence check per framework, not a gradient like the logging gaps above.
+
+### 5. Check Cross-Detector Corroboration
 
 Note whether the same function was also flagged by Detect Instability (timing/overlay fragility) or Detect Dependencies (shared/coupled state) — a function that's both flaky-prone *and* unlogged is a materially higher-priority fix than either fact alone, since it's exactly the kind of failure this axis exists to make diagnosable later.
 
-### 4. Filter Test/Fixture Code
+### 6. Filter Test/Fixture Code
 
-Deprioritize findings inside test methods themselves (as opposed to the application/framework code they call) unless the owner asked otherwise — a test's own assertion failure is already visible in the test report; the diagnosability gap that matters most is in the code under test and the framework/page-object layer between the test and the app.
+Deprioritize findings inside test methods themselves (as opposed to the application/framework code they call) unless the owner asked otherwise — a test's own assertion failure is already visible in the test report; the diagnosability gap that matters most is in the code under test and the framework/page-object layer between the test and the app. The failure-diagnostics capture check (Step 4) is the exception — that check is specifically about the test-runner/suite-level failure hook, which by definition lives in test infrastructure, not application code.
 
-### 5. Continue
+### 7. Continue
 
 Load `./step-03-report-and-propose.md`.

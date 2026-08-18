@@ -1,0 +1,581 @@
+<title>Refactor Radar Field Guide</title>
+
+<style>
+  :root {
+    --bg: #eef1f2;
+    --surface: #ffffff;
+    --surface-2: #e3e8ea;
+    --ink: #171b1f;
+    --ink-soft: #4c565f;
+    --ink-faint: #7a848c;
+    --border: #d3d9dc;
+    --accent: #2f6f8f;
+    --accent-ink: #ffffff;
+    --accent-soft: #dce9ee;
+    --mono-bg: #12161a;
+    --mono-ink: #d8dee2;
+    --mono-border: #262d33;
+
+    --sev-critical: #b3382a;
+    --sev-high: #c17a1a;
+    --sev-medium: #7c8a2e;
+    --sev-low: #3f7a68;
+
+    --font-display: Iowan Old Style, Palatino Linotype, Palatino, Georgia, serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181c;
+      --surface: #1b2126;
+      --surface-2: #222a30;
+      --ink: #e7ebee;
+      --ink-soft: #9aa7b0;
+      --ink-faint: #6c7880;
+      --border: #2c363d;
+      --accent: #7ec1e0;
+      --accent-ink: #0e2027;
+      --accent-soft: #1f3540;
+      --mono-bg: #0b0e11;
+      --mono-ink: #cfd8dd;
+      --mono-border: #232a30;
+
+      --sev-critical: #e2584a;
+      --sev-high: #e2984a;
+      --sev-medium: #b0c05e;
+      --sev-low: #6fbfa8;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #14181c;
+    --surface: #1b2126;
+    --surface-2: #222a30;
+    --ink: #e7ebee;
+    --ink-soft: #9aa7b0;
+    --ink-faint: #6c7880;
+    --border: #2c363d;
+    --accent: #7ec1e0;
+    --accent-ink: #0e2027;
+    --accent-soft: #1f3540;
+    --mono-bg: #0b0e11;
+    --mono-ink: #cfd8dd;
+    --mono-border: #232a30;
+
+    --sev-critical: #e2584a;
+    --sev-high: #e2984a;
+    --sev-medium: #b0c05e;
+    --sev-low: #6fbfa8;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+
+  /* ---------- Header ---------- */
+
+  header.hero {
+    border-bottom: 1px solid var(--border);
+    padding: 56px 0 32px;
+    margin-bottom: 40px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-size: clamp(2.1rem, 4vw, 2.9rem);
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+  }
+
+  .mission {
+    max-width: 62ch;
+    color: var(--ink-soft);
+    font-size: 1.08rem;
+    margin: 0 0 28px;
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .stat {
+    background: var(--surface);
+    padding: 16px 18px;
+  }
+
+  .stat .n {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 1.7rem;
+    font-weight: 600;
+    display: block;
+  }
+
+  .stat .label {
+    color: var(--ink-faint);
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+  }
+
+  /* ---------- Sections ---------- */
+
+  section { margin: 64px 0; }
+
+  section > .kicker {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  section > h2 {
+    font-size: 1.6rem;
+    margin: 0 0 8px;
+  }
+
+  section > .dek {
+    color: var(--ink-soft);
+    max-width: 68ch;
+    margin: 0 0 28px;
+  }
+
+  /* ---------- Diagram panels ---------- */
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px;
+    margin: 20px 0;
+    overflow-x: auto;
+  }
+
+  .panel h3 {
+    font-size: 1rem;
+    margin: 0 0 14px;
+    color: var(--ink);
+  }
+
+  .panel h3 .tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    margin-left: 8px;
+    text-transform: uppercase;
+  }
+
+  pre.mermaid { margin: 0; }
+
+  /* ---------- Roster table ---------- */
+
+  .roster {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.93rem;
+  }
+
+  .roster caption {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 18px 0 8px;
+  }
+
+  .roster caption:first-child { padding-top: 0; }
+
+  .roster td {
+    padding: 10px 12px 10px 0;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .roster td.skill {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .roster td.desc { color: var(--ink-soft); }
+
+  .roster td.pct {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+    color: var(--ink-faint);
+  }
+
+  .chip {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+
+  .chip.only-source-edit { background: var(--accent-soft); color: var(--accent); }
+
+  /* ---------- Scenarios ---------- */
+
+  .scenario {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    gap: 20px;
+    padding: 22px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .scenario:last-child { border-bottom: 1px solid var(--border); }
+
+  .scenario .trigger {
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .scenario .body h4 {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    margin: 0 0 6px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .scenario .body p {
+    margin: 0;
+    color: var(--ink-soft);
+    max-width: 66ch;
+  }
+
+  .scenario .body .path {
+    display: block;
+    margin-top: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+
+  @media (max-width: 640px) {
+    .scenario { grid-template-columns: 1fr; gap: 6px; }
+  }
+
+  /* ---------- Contract / footer ---------- */
+
+  .contract {
+    background: var(--mono-bg);
+    color: var(--mono-ink);
+    border: 1px solid var(--mono-border);
+    border-radius: 8px;
+    padding: 26px 28px;
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    line-height: 1.7;
+  }
+
+  .contract .head {
+    color: #ffffff99;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.7rem;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .contract ol {
+    margin: 0;
+    padding-left: 1.3em;
+  }
+
+  .contract li { margin-bottom: 10px; }
+  .contract li:last-child { margin-bottom: 0; }
+
+  footer {
+    margin-top: 72px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--ink-faint);
+    font-size: 0.85rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { scroll-behavior: auto !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="hero">
+    <span class="eyebrow">Refactor Radar — module rrd</span>
+    <h1>A forensic detective for test suites that lie about failures</h1>
+    <p class="mission">
+      Eighteen skills, one stateless persona (Ray), and a single rule that binds all of them:
+      no claim without a graph citation, no fix without a reviewable diff. This is the
+      complete map — every skill, every pipeline, every scenario that puts one to work.
+    </p>
+    <div class="stat-row">
+      <div class="stat"><span class="n">18</span><span class="label">skills</span></div>
+      <div class="stat"><span class="n">9</span><span class="label">detectors</span></div>
+      <div class="stat"><span class="n">2</span><span class="label">entry categories</span></div>
+      <div class="stat"><span class="n">1</span><span class="label">skill allowed to edit source</span></div>
+    </div>
+  </header>
+
+  <section>
+    <span class="kicker">Dispatch</span>
+    <h2>Ray sits at the door; everything else is a sibling workflow</h2>
+    <p class="dek">
+      Ray never carries state between sessions — no memory, no sanctum. Every session starts
+      by resolving which of two categories the owner needs, then handing off entirely.
+    </p>
+    <div class="panel">
+      <h3>Category-first dispatch <span class="tag">rrd-agent-radar</span></h3>
+      <pre class="mermaid">
+flowchart LR
+  R["Ray<br/>persona / router"] --> C1["Category 1<br/>Analyze real logs"]
+  R --> C2["Category 2<br/>Refactor for best practice"]
+  C1 --> ATR["rrd-analyze-test-reliability"]
+  C1 --> BASE["rrd-establish-execution-baseline"]
+  C2 --> AA["rrd-audit-all"]
+  C2 --> ONE["a single detector,<br/>invoked directly"]
+  AA --> STD["rrd-standards-audit"]
+  ATR --> AV["rrd-apply-and-verify"]
+  AA --> AV
+  AV --> GATE["rrd-ci-gate"]
+  AA --> TICKETS["rrd-export-tickets"]
+      </pre>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">Inside a full audit</span>
+    <h2>What <code>rrd-audit-all</code> actually runs</h2>
+    <p class="dek">
+      Nine detectors in one pass, pooled, fused for cross-detector corroboration, grouped into
+      opportunities, ranked, and — new this cycle — compared against the last tracked run.
+    </p>
+    <div class="panel">
+      <h3>Nine detectors → one ranked report <span class="tag">rrd-audit-all internals</span></h3>
+      <pre class="mermaid">
+flowchart TD
+  S["Step 1<br/>full scan or incremental via detect_changes"] --> D
+  subgraph D["Step 2 — nine detector passes"]
+    direction LR
+    d1["Dependencies"]
+    d2["Instability"]
+    d3["Data Issues"]
+    d4["Duplication"]
+    d5["Complexity"]
+    d6["Logging"]
+    d7["Config"]
+    d8["Locators"]
+    d9["Layering"]
+  end
+  D --> F["Evidence Fusion<br/>cross-detector corroboration"]
+  F --> O["Opportunity Engine<br/>Union-Find grouping"]
+  O --> I["Impact Analysis<br/>2-3 hop weighted traversal"]
+  I --> RK["Ranking<br/>impact x confidence / effort x risk"]
+  RK --> T["Trend vs. prior snapshot<br/>closed / new / regressed"]
+  T --> HTML["refactor-radar-audit-*.html"]
+      </pre>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">Full roster</span>
+    <h2>Every skill, grouped by what it's for</h2>
+    <table class="roster">
+      <caption>Persona &amp; setup</caption>
+      <tr><td class="skill">rrd-agent-radar</td><td class="desc">Ray — stateless persona/router, category-first menu dispatch</td><td class="pct">—</td></tr>
+      <tr><td class="skill">rrd-setup</td><td class="desc">Module registration, config collection, <code>_bmad/rrd/config.yaml</code> mirror</td><td class="pct">—</td></tr>
+
+      <caption>Category 1 — analyze real logs</caption>
+      <tr><td class="skill">rrd-establish-execution-baseline</td><td class="desc">Zero real runs → N genuine runs; diagnoses compile/discovery/env blockers first</td><td class="pct">—</td></tr>
+      <tr><td class="skill">rrd-analyze-test-reliability</td><td class="desc">Classifies every test as Real Failure / False Positive / False Negative / Healthy across multi-run history, plus app/env/data/script sub-tagging</td><td class="pct">—</td></tr>
+
+      <caption>Category 2 — nine structural detectors</caption>
+      <tr><td class="skill">rrd-detect-dependencies</td><td class="desc">Shared mutable fixtures, order-dependence, shared live app/data state — highest-impact family</td><td class="pct">47%</td></tr>
+      <tr><td class="skill">rrd-detect-instability</td><td class="desc">Fragile selectors, fixed waits, unhandled overlays/iframes/alerts</td><td class="pct">18%</td></tr>
+      <tr><td class="skill">rrd-detect-data-issues</td><td class="desc">Shared/non-reusable test data, missing setup/teardown lifecycle</td><td class="pct">17%</td></tr>
+      <tr><td class="skill">rrd-detect-duplication</td><td class="desc">Structural code similarity via graph <code>SIMILAR_TO</code> edges</td><td class="pct">18%</td></tr>
+      <tr><td class="skill">rrd-detect-complexity</td><td class="desc">Cyclomatic/cognitive hotspots, hidden O(n²), unguarded recursion</td><td class="pct">—</td></tr>
+      <tr><td class="skill">rrd-detect-logging</td><td class="desc">Silent catches, exception-dropping logs, missing failure screenshots/traces, failure-mode tagging</td><td class="pct">—</td></tr>
+      <tr><td class="skill">rrd-detect-config</td><td class="desc">Hardcoded URLs/credentials/secrets, inline env-switch logic, unsafe parallel config</td><td class="pct">—</td></tr>
+      <tr><td class="skill">rrd-detect-locators</td><td class="desc">Duplicated selectors, missing priority tiering, no centralized element repository</td><td class="pct">—</td></tr>
+      <tr><td class="skill">rrd-detect-layering</td><td class="desc">Missing/mixed architectural layers, cross-layer violations, naming drift</td><td class="pct">—</td></tr>
+
+      <caption>Orchestration, governance &amp; remediation</caption>
+      <tr><td class="skill">rrd-audit-all</td><td class="desc">Runs all nine detectors, fuses evidence, ranks opportunities, tracks trend</td><td class="pct">—</td></tr>
+      <tr><td class="skill">rrd-standards-audit</td><td class="desc">Reads a completed audit for gap types recurring 3+ times → governance/convention gaps</td><td class="pct">—</td></tr>
+      <tr><td class="skill">rrd-apply-and-verify</td><td class="desc"><span class="chip only-source-edit">only skill that edits source</span> — applies one diff, runs real tests, optional auto-rollback</td><td class="pct">—</td></tr>
+
+      <caption>Pipeline integration</caption>
+      <tr><td class="skill">rrd-ci-gate</td><td class="desc">Wraps rrd-audit-all into a PASS/FAIL verdict on new Critical opportunities</td><td class="pct">—</td></tr>
+      <tr><td class="skill">rrd-export-tickets</td><td class="desc">Top-N opportunities → GitLab issues; strictest consent bar of any skill here</td><td class="pct">—</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <span class="kicker">Scenarios</span>
+    <h2>Nine situations, nine entry points</h2>
+    <p class="dek">Every real reason to reach into this module lands on exactly one of these.</p>
+
+    <div class="scenario">
+      <div class="trigger">"We've never run this through Refactor Radar."</div>
+      <div class="body">
+        <h4>Cold start on a new project</h4>
+        <p><code>rrd-setup</code> registers the module and writes config, then a full <code>rrd-audit-all</code> pass establishes the first tracked snapshot — no trend yet, and that's reported plainly rather than a fabricated 0/0/0.</p>
+        <span class="path">rrd-setup → rrd-audit-all (full scan)</span>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <div class="trigger">"I already suspect it's hardcoded config / bad locators."</div>
+      <div class="body">
+        <h4>Targeted single-detector run</h4>
+        <p>Any of the nine detectors can be invoked standalone, scoped to the whole project or one file, without paying for a full nine-detector sweep.</p>
+        <span class="path">a single rrd-detect-* skill, direct invocation</span>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <div class="trigger">"CI just failed three times this week for no clear reason."</div>
+      <div class="body">
+        <h4>Real logs, unknown root cause</h4>
+        <p>Aggregates full run history per test, classifies flaky vs. real vs. false-negative, then invokes the matching structural detector scoped to the specific flagged test — not a generic re-scan.</p>
+        <span class="path">rrd-analyze-test-reliability → matching rrd-detect-*</span>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <div class="trigger">"This suite barely runs — half the tests don't even execute."</div>
+      <div class="body">
+        <h4>Discovery or environment is broken</h4>
+        <p>Diagnoses compile failures, discovery gaps, and environment blockers before any log analysis is possible — turns zero genuine runs into N real ones.</p>
+        <span class="path">rrd-establish-execution-baseline → rrd-analyze-test-reliability</span>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <div class="trigger">"We fixed a batch of findings last sprint — what's left?"</div>
+      <div class="body">
+        <h4>Repeat audit, scoped and compared</h4>
+        <p>Offers an incremental scan restricted to files changed since the last run's commit, and reports Closed / New / Regressed against a capped 20-run history file — never silently defaults to incremental without stating the tradeoff.</p>
+        <span class="path">rrd-audit-all (incremental mode)</span>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <div class="trigger">"This same gap keeps showing up in every review."</div>
+      <div class="body">
+        <h4>One mistake vs. no convention</h4>
+        <p>Reads a completed audit's findings and only escalates a gap type to a governance finding once it recurs three or more times across distinct files — one bad selector is a bug, four is a missing convention.</p>
+        <span class="path">rrd-standards-audit (reads a prior rrd-audit-all report)</span>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <div class="trigger">"Stop proposing, actually fix this one and prove it works."</div>
+      <div class="body">
+        <h4>Apply a diff for real</h4>
+        <p>The only skill in this module permitted to touch source directly — re-reads the full current file before applying (proposals are written against a snapshot), runs the real test suite, and can auto-revert on a genuine regression if that's explicitly opted into.</p>
+        <span class="path">rrd-apply-and-verify</span>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <div class="trigger">"We want this blocking merges, not just advisory."</div>
+      <div class="body">
+        <h4>Wire the audit into a pipeline</h4>
+        <p>A thin wrapper around a full audit: fails only on opportunities that are both new since the last run and at or above Critical — pre-existing debt doesn't block every build forever.</p>
+        <span class="path">rrd-ci-gate → rrd-audit-all</span>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <div class="trigger">"Get the top findings in front of the team as real tickets."</div>
+      <div class="body">
+        <h4>Export to a shared tracker</h4>
+        <p>The only skill that writes to a system outside this project — requires two separate explicit confirmations (scope, then destination) before creating anything, and skips opportunities already exported.</p>
+        <span class="path">rrd-export-tickets → GitLab issues</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">The one rule everything answers to</span>
+    <h2>The Investigation Contract</h2>
+    <div class="contract">
+      <span class="head">evidence-and-diff-discipline.md — kept in sync across all fifteen detection/analysis skills</span>
+      <ol>
+        <li>No claim without a receipt — every finding cites the exact <code>query_graph</code>/<code>search_graph</code>/<code>trace_path</code>/log evidence that produced it.</li>
+        <li>Source is never edited directly. Every fix is a diff written to the target project's own <code>proposals/</code> — except <code>rrd-apply-and-verify</code>, invoked explicitly, per diff.</li>
+        <li>Resolve the target project first, via <code>list_projects</code>/<code>index_status</code>, before querying anything.</li>
+        <li>Confidence, not absolutes — every finding is high/medium/low, corroborated by real execution logs where available.</li>
+        <li>Prefer <code>get_code_snippet</code> over a raw file read once the graph has narrowed to a candidate — cheaper, faster, and it carries precomputed metrics a plain read never will.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer>
+    Module code <code>rrd</code> · config at <code>_bmad/rrd/config.yaml</code> · diffs always land in the target project's own <code>proposals/</code>, never here.
+  </footer>
+
+</div>

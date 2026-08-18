@@ -21,3 +21,7 @@ State plainly which dimensions (browsers, environments, tags) produced genuine r
 ## Tool Usage Discipline: distinguish blocker types before fixing anything
 
 Compile failure, discovery gap, and environment/config blocker (whole-run or partial) are different failure modes with different fixes — diagnosing the wrong one wastes fix cycles and can misattribute a real signal as an artifact of the wrong cause. See `establish-execution-baseline-heuristics.md` for the full diagnostic order and real examples of each, drawn from actual runs against three different projects.
+
+## Tool Usage Discipline: prefer `get_code_snippet` over direct file reads (for source, not toolchain output)
+
+When diagnosing a discovery gap or a config/source-line blocker, confirm the exact line via `mcp__codebase-memory-mcp__get_code_snippet(qualified_name=...)` rather than a plain `Read`, for the same reason every detector prefers it: cheaper, faster, and it returns precomputed graph properties a raw file read doesn't. This applies to source code candidates only — compiler/toolchain output, CI logs, and console text are never in the graph and are read via `Read`/`Grep`/`Bash` as usual.

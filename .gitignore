@@ -1,0 +1,67 @@
+# Refactor Radar (rrd) module — only this module is committed
+# Everything else from the BMad environment is excluded
+
+# Exclude all non-rrd BMad infrastructure
+.agents/
+.kiro/
+.claude/
+_bmad/
+_config/
+_output/
+skills/.claude/
+
+# Exclude other skills
+skills/bmad-*/
+skills/bpi-*/
+skills/tea-*/
+skills/gds-*/
+skills/wds-*/
+skills/cis-*/
+skills/other-*/
+
+# Exclude random other directories at repo root
+cloned_*/
+testing_*/
+bpi/
+java_proj/
+offre/
+refactor_module/
+cognee/
+jarvis*/
+desktop/
+
+# Auth / secrets — never commit
+storageState.json
+storageState*.json
+
+# Node
+node_modules/
+package-lock.json
+
+# Generated outputs
+_bmad-output/
+playwright-report/
+test-results/
+.codebase-memory/
+
+# System/IDE files
+.env
+.env.local
+*.pyc
+__pycache__/
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.iml
+
+# Include only rrd skills and setup
+!skills/rrd-*/
+!skills/rrd-setup/
+!skills/README.md
+
+# Preserve these root files if they exist
+!LICENSE
+!CONTRIBUTING.md

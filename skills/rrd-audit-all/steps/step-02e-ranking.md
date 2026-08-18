@@ -21,6 +21,13 @@ Input:
 Output:
 - Opportunity[] (sorted by priority, with priority.score and priority.level populated)
 
+## PREREQUISITE ARTIFACTS
+
+Before starting this step, verify:
+- [ ] `{project-root}/.refactor-radar-work/opportunities.json` exists and is valid JSON (from step-02d)
+- [ ] Each opportunity has `impact`, `risk`, `effort`, `confidence` (not yet priority)
+- If checks fail, **HALT**. Step-02d did not complete successfully. Do not proceed.
+
 ## SEQUENCE
 
 ### 0. Load Input
@@ -30,7 +37,7 @@ Read opportunities from step-02d:
 read {project-root}/.refactor-radar-work/opportunities.json → Opportunity[]
 ```
 
-Verify file exists. If missing, halt with error: "Missing opportunities.json from step-02d"
+**Critical:** File must exist. If missing, halt with error: "Missing opportunities.json from step-02d — that step did not complete successfully."
 
 ### 1. Calculate Raw Score for Each Opportunity
 
@@ -166,7 +173,8 @@ Before continuing, verify:
 - [ ] List is sorted by score (descending)
 - [ ] No opportunities have missing impact/risk/effort/confidence
 
-### 8. Write Ranked Opportunities
+
+### 9. Write Ranked Opportunities
 
 Overwrite opportunities.json with ranking added:
 ```bash
@@ -175,7 +183,33 @@ write {project-root}/.refactor-radar-work/opportunities.json [Opportunity[]]
 
 Opportunities must be **sorted by priority.score (descending)** with rank assigned.
 
-### 9. Continue
+## ⚠️ CRITICAL CHECKPOINT: BEFORE PROCEEDING TO STEP-03
+
+**Do not skip this validation. Do not proceed without confirming all of the below.**
+
+Verify:
+- [ ] File `opportunities.json` has been overwritten
+- [ ] Every opportunity has: `priority.raw_score`, `priority.score`, `priority.level`, `priority.justification`
+- [ ] `priority.score` is between 0 and 100 (normalized against this run's min/max raw_score)
+- [ ] `priority.level` is one of: Critical (90-100), High (70-89), Medium (40-69), Low (0-39)
+- [ ] `priority.justification` includes raw_score, run range (min_raw-max_raw), and the calculation formula
+- [ ] List is sorted by `priority.score` descending (Critical → Low)
+- [ ] Every opportunity has a `metadata.rank` assigned (1, 2, 3, ...)
+- [ ] No opportunities have NaN or null priority fields
+
+If any validation fails, **HALT**. Do not proceed to step-03. Report the failure.
+
+If all validations pass, report:
+```
+Step 02e complete: ranking applied to {num_opportunities} opportunities
+  Critical: {count} (scores {range})
+  High: {count} (scores {range})
+  Medium: {count} (scores {range})
+  Low: {count} (scores {range})
+Ready to proceed to step-03 (Reporting)
+```
+
+### 10. Continue
 
 Load and proceed to `./step-03-rank-and-report.md`.
 
