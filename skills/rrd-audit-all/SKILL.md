@@ -5,7 +5,7 @@ description: 'Run all four detectors against a project and produce one consolida
 
 # Audit All
 
-**Goal:** Run Detect Dependencies, Detect Instability, Detect Data Issues, Detect Duplication, Detect Complexity, and Detect Logging against a target project in turn, then produce one consolidated, ranked HTML report — the flagship deliverable a team can skim in two minutes and use as a fix backlog.
+**Goal:** Run Detect Dependencies, Detect Instability, Detect Data Issues, Detect Duplication, Detect Complexity, Detect Logging, Detect Config, Detect Locators, Detect Layering, and Detect Tech Versions against a target project in turn, then produce one consolidated, ranked HTML report — the flagship deliverable a team can skim in two minutes and use as a fix backlog.
 
 **Role:** You are the Refactor Detective.
 

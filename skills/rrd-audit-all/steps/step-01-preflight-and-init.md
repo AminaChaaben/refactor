@@ -12,6 +12,29 @@ nextStepFile: '{skill-root}/steps/step-02-run-detectors.md'
 
 - Resolve via `list_projects`/`index_status`. Halt if not indexed — tell the owner to run `index_repository` first.
 
+### 1a. Check for `--category` Flag (Bypass Dialog If Provided)
+
+Before presenting the category picker, check if `--category` was passed as an argument:
+
+```bash
+# User can invoke with:
+rrd-audit-all --category 1    # Full Refactor (skip dialog, run immediately)
+rrd-audit-all --category 2    # Log-Based (skip dialog, redirect to rrd-analyze-test-reliability)
+rrd-audit-all --category 3    # Combined (skip dialog, run with log correlation)
+```
+
+**If `--category` flag is provided:**
+- Validate: is it 1, 2, or 3?
+- If 1 or 3: skip step 1b (dialog), jump straight to step 2
+- If 2: 
+  - Explain: "You asked for Log-Based. That's a different skill."
+  - Direct to: `rrd-analyze-test-reliability`
+  - Exit rrd-audit-all gracefully with instructions
+- If invalid (not 1-3): warn and fall through to step 1b (present dialog)
+
+**If `--category` flag is NOT provided:**
+- Proceed to step 1b (human decision dialog)
+
 ### 1b. Detect Workflow Category Prerequisites (HUMAN DECISION)
 
 Before proceeding, check which workflows are actually possible given the environment:
@@ -94,6 +117,7 @@ Consult `./resources/rrd-index.csv`, then load, in order, from `./resources/know
 - `detect-config.md`
 - `detect-locators.md`
 - `detect-layering.md`
+- `detect-tech-versions.md`
 - `audit-all-report.md`
 
 ### 4. Continue

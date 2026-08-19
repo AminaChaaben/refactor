@@ -119,6 +119,12 @@ skill = "rrd-detect-logging"
 category = "2"
 
 [[agent.menu]]
+code = "DV"
+description = "Detect Tech Versions — find outdated Java/JUnit/Spring/Selenium/Maven/npm versions, flag CVEs and breaking framework migrations, propose modernization upgrades"
+skill = "rrd-detect-tech-versions"
+category = "2"
+
+[[agent.menu]]
 code = "AV"
 description = "Apply and Verify — apply a chosen proposal diff to the target project for real and run its test suite to confirm the result. The only capability that edits source directly. Shared closing action for either category."
 skill = "rrd-apply-and-verify"

@@ -1,6 +1,6 @@
 ---
 name: 'step-02-run-detectors'
-description: 'Run all nine detection heuristics against the target project and pool findings'
+description: 'Run all ten detection heuristics against the target project and pool findings'
 nextStepFile: '{skill-root}/steps/step-02b-evidence-fusion.md'
 ---
 
@@ -8,7 +8,7 @@ nextStepFile: '{skill-root}/steps/step-02b-evidence-fusion.md'
 
 ## STEP GOAL
 
-Run all nine detection heuristics against `{target_project}`, in turn, and pool every finding into a single list before ranking.
+Run all ten detection heuristics against `{target_project}`, in turn, and pool every finding into a single list before ranking.
 
 ## SCOPE (Incremental vs. Full — Set by Step 1)
 
@@ -52,9 +52,13 @@ Apply the locator-strategy heuristics from `detect-locators.md`: `search_graph`/
 
 Apply the architecture heuristics from `detect-layering.md`: `get_architecture(aspects=["file_tree","structure"])` to enumerate the actual directory structure against the seven candidate layers (tests, pages, components, data, utils, config, reporting); `search_code`/`search_graph` for assertion calls embedded in page-object methods and raw-data manipulation bypassing an existing data layer; sample file names per layer for naming-convention consistency. Cross-reference config-layer findings against this pass's own Detect Config results rather than duplicating (this detector owns whether config lives in its own structural layer; Detect Config owns what's hardcoded inside it).
 
-### 10. Pool
+### 10. Detect Tech Versions
 
-Combine every finding from all nine passes into one list, each tagged with its root-cause family, evidence citation, and confidence level.
+Apply the modernization heuristics from `detect-tech-versions.md`: `Read` `pom.xml`/`build.gradle`/`build.gradle.kts`/`package.json` directly (manifests are not graph-indexed — this is the documented fallback exception), compare declared versions against `resources/version-database.csv`, classify breaking-migration risk via the hardcoded rules table (JUnit 4→5, Spring 5→6, Selenium 3→4, Java LTS jumps), and confirm impact via `search_code`/`search_graph` usage counts before finalizing severity. Any CVE-flagged finding is CRITICAL regardless of usage count or breaking-change status.
+
+### 11. Pool
+
+Combine every finding from all ten passes into one list, each tagged with its root-cause family, evidence citation, and confidence level.
 
 
 ### 12. Write Findings
@@ -91,6 +95,6 @@ Step 02 complete: {num_findings} findings across {num_detectors} detectors writt
 Ready to proceed to step-02b (Evidence Fusion)
 ```
 
-### 13. Continue
+### 12. Continue
 
 Load and proceed to `./step-02b-evidence-fusion.md`.

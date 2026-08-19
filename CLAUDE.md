@@ -85,6 +85,19 @@ Which workflow category do you want? (1, 2, or 3)
 
 If user explicitly says "run rrd-detect-config" (names one detector), proceed directly — they've already made their category choice (Full Refactor). Still mention at the start: "Running Full Refactor (code-based) detector: rrd-detect-config."
 
+### Exception: `--category` Flag (Direct Workflow Selection)
+
+Users can invoke `rrd-audit-all` with a `--category` flag to skip the dialog entirely:
+
+```bash
+rrd-audit-all --category 1    # Full Refactor (5-15 min, code-based)
+rrd-audit-all --category 3    # Combined (1-2 hours, code + execution)
+```
+
+**Note on category 2:** Log-Based is a separate skill (`rrd-analyze-test-reliability`). If user passes `--category 2`, rrd-audit-all detects this and directs them to the correct skill instead of proceeding.
+
+Valid values: 1, 2, 3. Invalid values fall back to the dialog.
+
 ### How to Apply This
 
 - **rrd-audit-all step-01**: Now enforces this via "Detect Workflow Category Prerequisites" section
