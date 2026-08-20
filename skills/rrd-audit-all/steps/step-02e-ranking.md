@@ -41,7 +41,7 @@ read {project-root}/.refactor-radar-work/opportunities.json → Opportunity[]
 
 ### 1. Calculate Raw Score for Each Opportunity
 
-**CALIBRATION FIX (2026-08-11, after real-data validation on jarvis):** the original formula multiplied a single/low-double-digit `impact_score` by `confidence_score` on a 0-100 scale, then divided by small numbers (max ~6). Confidence dominated the ratio and the raw result almost always exceeded 100 before clamping — see the old worked example below, which produced 1161 and clamped straight to 100/Critical. That meant nearly every real opportunity landed in "Critical" regardless of actual differences in risk/effort. Fixed by (a) using confidence as a 0-1 fraction, and (b) normalizing scores relative to the current run instead of comparing raw numbers against fixed absolute thresholds. Full rationale in `opportunity-grouping-and-impact-heuristics.md` Part 6.
+**Rule:** multiplying a single/low-double-digit `impact_score` by `confidence_score` on a 0-100 scale, then dividing by small numbers (max ~6), lets confidence dominate the ratio — the raw result almost always exceeds 100 before clamping, so nearly every real opportunity lands in "Critical" regardless of actual differences in risk/effort. Avoid this by (a) using confidence as a 0-1 fraction, and (b) normalizing scores relative to the current run instead of comparing raw numbers against fixed absolute thresholds. Full rationale in `opportunity-grouping-and-impact-heuristics.md` Part 6.
 
 For each opportunity:
 
@@ -72,7 +72,7 @@ raw_score = (impact_score × confidence_ratio) / (effort_score × risk_factor)
 
 Record `raw_score` on the opportunity for now — do not clamp or bucket it yet. Priority level depends on how this opportunity's raw_score compares to every other opportunity in this run (step 2).
 
-**Example Calculation (jarvis real-data validation):**
+**Example Calculation:**
 ```
 OPP-001 (FileOnlyLogger.write coupling):
   impact_score = (9 direct + 0 weighted transitive) × 0.5 = 4.5   [no execution logs]
@@ -83,7 +83,7 @@ OPP-001 (FileOnlyLogger.write coupling):
   raw_score = (4.5 × 0.86) / (2.0 × 1.5) = 3.87 / 3.0 = 1.29
 ```
 
-Compare against the old (buggy) calculation for the same inputs: `confidence_score=86` (not ÷100) gave `(4.5 × 86) / 3.0 = 129`, clamped to 100/Critical. The corrected raw_score (1.29) is not yet a priority level — it only becomes one after run-relative normalization in step 2.
+Using `confidence_score=86` instead of `confidence_ratio=0.86` gives `(4.5 × 86) / 3.0 = 129`, clamped to 100/Critical regardless of this opportunity's real risk/effort — that's why confidence must be a 0-1 fraction. The correct raw_score (1.29) is not yet a priority level — it only becomes one after run-relative normalization in step 2.
 
 ### 2. Normalize Across the Run and Assign Priority Level
 
@@ -218,7 +218,7 @@ Load and proceed to `./step-03-rank-and-report.md`.
 ## Design Principles
 
 - **Transparent calculation:** Every score is derived from impact × confidence_ratio / (effort × risk), then normalized against this run's min/max.
-- **Confidence is a fraction, not a percentage, inside the formula.** Using the raw 0-100 value there was the root cause of the saturation bug fixed 2026-08-11 — keep it as 0-1 in any future formula edits.
+- **Confidence is a fraction, not a percentage, inside the formula.** Using the raw 0-100 value causes score saturation (see the CALIBRATION rule above) — keep it as 0-1 in any future formula edits.
 - **Priority is run-relative, not absolute.** A raw_score only becomes a priority level after comparison against every other opportunity produced in the same audit run.
 - **Execution evidence breaks ties:** Two opportunities with similar structural scores are ranked by real failure evidence.
 - **Effort tempering:** A refactoring touching 100 files is lower priority than one touching 10 files, even if impact is the same.

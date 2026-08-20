@@ -10,7 +10,7 @@ nextStepFile: null
 
 ### 1. Write Findings Summary
 
-Write `{rrd_artifacts}/detect-data-issues-{target_project}-{date}.md`: data dependency, lifecycle gap, and evidence citation per finding.
+Write `{rrd_artifacts}/detect-data-issues-{target_project}.md` (following `./resources/knowledge/detect-report-template.md`'s structure): data dependency, lifecycle gap, and evidence citation per finding.
 
 ### 2. Write Diff Proposals
 

@@ -204,7 +204,7 @@ write {project-root}/.refactor-radar-work/opportunities.json (overwrite)
 
 Opportunities sorted by priority.score (descending).
 
-**Calibration note (2026-08-11):** `priority.score` is computed by normalizing `priority.raw_score` against `run_min_raw`/`run_max_raw` across every opportunity produced *in this run* — it is not an absolute score. An earlier version compared a 0-100 confidence value directly against small effort/risk numbers, which saturated almost every real opportunity to 100/Critical (see opportunity-grouping-and-impact-heuristics.md Part 6). Always read `raw_score` + the run's min/max alongside `score` when auditing a report.
+**Note:** `priority.score` is computed by normalizing `priority.raw_score` against `run_min_raw`/`run_max_raw` across every opportunity produced *in this run* — it is not an absolute score. Comparing a 0-100 confidence value directly against small effort/risk numbers saturates almost every real opportunity to 100/Critical (see opportunity-grouping-and-impact-heuristics.md Part 6). Always read `raw_score` + the run's min/max alongside `score` when auditing a report.
 
 ### Step-03 (Report Rendering) → HTML + Diffs
 

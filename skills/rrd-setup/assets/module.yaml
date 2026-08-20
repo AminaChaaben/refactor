@@ -9,11 +9,12 @@ module_greeting: >
   Reliability classifies false positives/negatives across multiple runs (JUnit/Surefire XML,
   Playwright JSON, Jenkins console), tagging each as app/env/data/script-error, and automatically
   establishing a baseline via Establish Execution Baseline if none exists yet; or (2) refactor
-  code/tests for best practices — Audit All runs all nine structural detectors (Dependencies,
-  Instability, Data Issues, Duplication, Complexity, Logging, Config, Locators, Layering),
-  optionally scoped incrementally to changed files, and produces one ranked report with a trend
-  against the last run. A completed audit can feed Standards Audit (governance/convention gaps
-  from patterns recurring 3+ times), rrd-ci-gate (pass/fail a pipeline on new Critical findings),
+  code/tests for best practices — Audit All runs all ten structural detectors (Dependencies,
+  Instability, Data Issues, Duplication, Complexity, Logging, Config, Locators, Layering, Tech
+  Versions), optionally scoped incrementally to changed files, and produces one ranked report
+  with a trend against the last run. Any individual detector, plus Standards Audit (governance/
+  convention gaps from patterns recurring 3+ times, using a completed Audit All run as evidence),
+  is also available directly from Ray's menu. rrd-ci-gate (pass/fail a pipeline on new Critical findings),
   or rrd-export-tickets (top-N opportunities as GitLab issues). Ray asks which category you're
   in if it isn't obvious, then shows only the relevant menu. Every finding cites its evidence;
   every fix is a reviewable diff — nothing is ever applied automatically unless you explicitly

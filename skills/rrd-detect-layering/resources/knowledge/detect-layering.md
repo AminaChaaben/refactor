@@ -40,4 +40,4 @@ Sample file names within one layer's directory and check for a single consistent
 
 ## Calibration Note
 
-An owner may have a documented, deliberate reason for an unconventional structure (e.g. a monorepo convention shared across many projects that this project correctly follows even though it looks unusual in isolation). Since Ray no longer carries cross-session calibration memory, treat any owner statement of "this is our monorepo's established convention" as in-session context for that run, not as something to persist automatically.
+An owner may have a documented, deliberate reason for an unconventional structure (e.g. a monorepo convention shared across many projects that this project correctly follows even though it looks unusual in isolation). Ray does not carry cross-session calibration memory — treat any owner statement of "this is our monorepo's established convention" as in-session context for that run, not as something to persist automatically.

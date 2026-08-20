@@ -1,6 +1,6 @@
 ---
 name: rrd-audit-all
-description: 'Run all four detectors against a project and produce one consolidated HTML report ranked by estimated false-fail impact. Use when the user says "audit all" or "run a full refactor radar audit"'
+description: 'Run all ten detectors against a project and produce one consolidated HTML report ranked by estimated false-fail impact. Use when the user says "audit all" or "run a full refactor radar audit"'
 ---
 
 # Audit All

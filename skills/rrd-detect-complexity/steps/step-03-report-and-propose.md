@@ -10,7 +10,7 @@ nextStepFile: null
 
 ### 1. Write Findings Summary
 
-Write `{rrd_artifacts}/detect-complexity-{target_project}-{date}.md`: each finding with the function/method, the metric(s) that flagged it, the confirmed source-level cause (named concretely, not just restated as a number), and evidence citation (the exact `query_graph` call and result).
+Write `{rrd_artifacts}/detect-complexity-{target_project}.md` (following `./resources/knowledge/detect-report-template.md`'s structure): each finding with the function/method, the metric(s) that flagged it, the confirmed source-level cause (named concretely, not just restated as a number), and evidence citation (the exact `query_graph` call and result).
 
 ### 2. Write Diff Proposals
 

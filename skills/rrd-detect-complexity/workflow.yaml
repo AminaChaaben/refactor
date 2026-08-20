@@ -19,7 +19,7 @@ variables:
   target_project: ""
   complexity_thresholds: "default" # owner may narrow/widen per-metric thresholds
 
-default_output_file: "{rrd_artifacts}/detect-complexity-{target_project}-{date}.md"
+default_output_file: "{rrd_artifacts}/detect-complexity-{target_project}.md"
 diff_output_folder: "{target_project_root}/proposals"
 
 required_tools:

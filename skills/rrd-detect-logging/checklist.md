@@ -6,6 +6,7 @@
 - [ ] Target project confirmed indexed
 - [ ] Knowledge fragment loaded: `evidence-and-diff-discipline.md`
 - [ ] Knowledge fragment loaded: `detect-logging.md`
+- [ ] Knowledge fragment loaded: `detect-report-template.md`
 - [ ] Scope confirmed with owner (whole codebase, or narrowed to a specific test's code paths)
 
 **Halt if missing:** target project not indexed.
@@ -29,5 +30,5 @@
 
 ## Completion Criteria
 
-- [ ] Findings summary written to `{rrd_artifacts}/detect-logging-{target_project}-{date}.md`, grouped by gap type
+- [ ] Findings summary written to `{rrd_artifacts}/detect-logging-{target_project}.md`, grouped by gap type
 - [ ] All diff proposals written to the target project's `proposals/`, listed in the summary

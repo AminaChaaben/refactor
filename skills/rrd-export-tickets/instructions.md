@@ -2,8 +2,6 @@
 
 # Export Tickets
 
-**Version:** 1.0 (Single-Step Wrapper)
-
 ---
 
 ## Overview

@@ -258,7 +258,7 @@ overall_confidence = (finding_consensus × 0.4) + (evidence_strength × 100 × 0
 
 ### 10. Estimate Effort
 
-**CALIBRATION FIX (2026-08-11, after real-data validation on jarvis):** summing whole-file-size × a flat factor overestimates any fix that's actually localized to a few call sites — a 327-line file needing a 9-call-site dependency injection produced 481 estimated lines when the real number was ~45. Pick one of two strategies per opportunity based on what the recommendation actually does (full detail in `opportunity-grouping-and-impact-heuristics.md` Part 5):
+**Rule:** summing whole-file-size × a flat factor overestimates any fix that's actually localized to a few call sites. Pick one of two strategies per opportunity based on what the recommendation actually does (full detail in `opportunity-grouping-and-impact-heuristics.md` Part 5):
 
 ```
 if recommendation deletes/rewrites an entire file (e.g. duplicate-file removal, full selector-pattern rewrite):

@@ -18,7 +18,7 @@ validation: "./checklist.md"
 variables:
   target_project: ""
 
-default_output_file: "{rrd_artifacts}/detect-data-issues-{target_project}-{date}.md"
+default_output_file: "{rrd_artifacts}/detect-data-issues-{target_project}.md"
 diff_output_folder: "{target_project_root}/proposals"
 
 required_tools:

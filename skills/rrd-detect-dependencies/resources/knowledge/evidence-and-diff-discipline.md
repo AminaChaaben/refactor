@@ -18,14 +18,13 @@ Before querying anything, resolve which project graph to use via `mcp__codebase-
 
 Report a confidence level (high / medium / low) on every finding, especially when static pattern-matching is corroborated (or not) by real execution/log evidence via `ingest_traces`. A structurally risky pattern that never fails in practice is lower priority than one that also shows up in real reruns — say so explicitly.
 
-## Memory retired — check history manually if it exists
+## Calibration Notes Are Session-Scoped
 
-Ray does not carry cross-session memory (no sanctum, no `findings-log.md`/`calibration.md` read on activation) — this is a deliberate structural-fidelity decision, not an oversight. If a project has a historical findings log (e.g. `{project-root}/_bmad/memory/rrd-agent-radar/findings-log.md` from a prior run of the pre-restructure architecture), it is safe to read as reference context to avoid immediately re-reporting a settled finding, but it is not an active memory contract any detection workflow depends on.
+Ray does not carry cross-session memory (no sanctum, no `findings-log.md`/`calibration.md` read on activation). Treat any owner statement that a finding is "known and accepted" as context for the current run only — it does not suppress that finding in a future run. If a project has a historical findings log (e.g. `{project-root}/_bmad/memory/rrd-agent-radar/findings-log.md`), it is safe to read as reference context to avoid immediately re-reporting a settled finding, but it is not an active memory contract any detection workflow depends on.
 
+## Tool Usage Discipline: `search_code` Result Interpretation
 
-## Tool Usage Discipline: `search_code` (lesson from a real miss)
-
-A real audit run once nearly reported `search_code` as "unreliable" for missing a confirmed match. Root cause, after digging in: operator error, not a tool defect. Two rules prevent this recurring:
+`search_code` can silently return zero results from a malformed query rather than from a true absence of matches. Two rules prevent misreading that as "no finding":
 
 1. **`file_pattern` is a filename glob (grep `--include` semantics), not a path glob.** `*.spec.ts` is correct; `tests/**` is not — it matches no filename, so grep silently matches zero files. To scope by directory/path, use `path_filter` (a regex on the result file path, e.g. `^tests/`) instead, or combine both.
 2. **Always compare `total_grep_matches` to `total_results` to `limit` before concluding "no finding."** `search_code` explicitly ranks test files *last* by design (definitions first, popular functions next, tests last) — a real match can exist in `total_grep_matches` but fall below `limit` in the enriched, ranked `results`. If `total_grep_matches` is 0, the query itself is broken (bad pattern or bad `file_pattern`) — that is not evidence of absence. If `total_grep_matches` > 0 but the file you expect isn't in `results`, raise `limit` or add a `path_filter`/correct `file_pattern` before reporting a non-finding.

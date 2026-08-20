@@ -36,4 +36,4 @@ Before proposing "write a doc," check whether a doc already exists covering the 
 
 ## Calibration Note
 
-Team size, project maturity, and organizational context (a client engagement vs. an internal tool vs. an open-source project with external contributors) all shift what's proportionate here more than for any other Refactor Radar detector — this axis is inherently about process fit, not a universal code-quality bar. Since Ray no longer carries cross-session calibration memory, treat any owner statement about team size/maturity/context as in-session context for that run, not as something to persist automatically.
+Team size, project maturity, and organizational context (a client engagement vs. an internal tool vs. an open-source project with external contributors) all shift what's proportionate here more than for any other Refactor Radar detector — this axis is inherently about process fit, not a universal code-quality bar. Ray does not carry cross-session calibration memory — treat any owner statement about team size/maturity/context as in-session context for that run, not as something to persist automatically.

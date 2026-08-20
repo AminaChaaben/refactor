@@ -6,6 +6,7 @@
 - [ ] Target project confirmed indexed
 - [ ] Knowledge fragment loaded: `evidence-and-diff-discipline.md`
 - [ ] Knowledge fragment loaded: `detect-tech-versions.md`
+- [ ] Knowledge fragment loaded: `detect-report-template.md`
 - [ ] Version database loaded: `resources/version-database.csv`
 
 **Halt if missing:** target project not indexed.
@@ -30,6 +31,6 @@
 
 ## Completion Criteria
 
-- [ ] Findings summary written to `{rrd_artifacts}/detect-tech-versions-{target_project}-{date}.md`
+- [ ] Findings summary written to `{rrd_artifacts}/detect-tech-versions-{target_project}.md`
 - [ ] All diff proposals written to the target project's `proposals/`, listed in the summary
 - [ ] Skipped-artifact count stated once, up front

@@ -10,7 +10,7 @@ nextStepFile: null
 
 ### 1. Write Findings Summary
 
-Write `{rrd_artifacts}/detect-tech-versions-{target_project}-{date}.md`, structured in two tiers:
+Write `{rrd_artifacts}/detect-tech-versions-{target_project}.md` (following `./resources/knowledge/detect-report-template.md`'s structure), structured in two tiers:
 
 **Tier 1 — Structural findings (full confidence, no external dependency):** unpinned versions and duplicate version declarations (step-02 §3), CVE findings from the curated CSV (step-02 §4), breaking-migration classifications (step-02 §5), toolchain-risk flags (step-02 §5b), and effective-version-source notes (step-02 §5c). For each: technology name, current version, severity (CRITICAL/HIGH/MEDIUM/LOW/MEDIUM-RISK-TOOLCHAIN), CVE ID if applicable, breaking/safe/toolchain-risk classification, effective-version source (local/parent/BOM), impact (file count using it, or "structural/agent-based — see §6 watchlist" per step-02 §6), effort estimate, and priority rank.
 

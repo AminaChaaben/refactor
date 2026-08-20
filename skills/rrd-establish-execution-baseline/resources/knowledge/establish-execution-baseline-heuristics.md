@@ -1,12 +1,12 @@
 # Establish Execution Baseline Heuristics
 
-Extracted from `rrd-analyze-test-reliability`'s original Step 1b after real use across three projects showed this capability is bigger than one workflow's prerequisite step — it's "get any test suite from zero to N genuine execution runs," independently useful and independently reusable.
+This skill's job: get any test suite from zero to N genuine execution runs, independently of any other workflow.
 
 ## What Success Looks Like
 
 The owner (or another workflow, like `rrd-analyze-test-reliability`) gets `{run_count}` genuine, preserved execution runs of the target's real test suite — with every environment/discovery blocker along the way diagnosed and fixed via the module's one source-touching exception, not misdiagnosed as "flaky" or silently worked around.
 
-## Real Failure Modes Encountered (all three, in production use this session)
+## Known Failure Modes to Check For
 
 1. **Build/compile-level failure** — wrong JDK vs JRE was hit twice. Fix: point `JAVA_HOME` at an actual JDK, retry once.
 2. **Discovery gap** — Maven Surefire's default TestNG/JUnit auto-discovery (`**/*Test.java`/`**/*Tests.java`/`**/*TestCase.java`) silently excluded real test classes named outside that convention, twice, out of three real projects. The report showed "0 failures" having tested nothing. Always cross-check the report's test count against the real `@Test`-annotated method count in source (`search_graph`/`query_graph`/`Grep`) — never trust "few/no failures" as "few/no tests" without this check.

@@ -6,5 +6,5 @@
 - step-03-report-and-propose.md
 
 ## Outputs
-- {rrd_artifacts}/detect-tech-versions-{target_project}-{date}.md
+- {rrd_artifacts}/detect-tech-versions-{target_project}.md
 - Diff proposals written to the target project's own `proposals/`

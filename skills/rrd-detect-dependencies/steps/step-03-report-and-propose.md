@@ -14,7 +14,7 @@ Produce the findings summary and a reviewable diff proposal per finding, per the
 
 ### 1. Write Findings Summary
 
-Write `{rrd_artifacts}/detect-dependencies-{target_project}-{date}.md` containing, for each finding: title, coupling shape, risk level, evidence citation, and a link to its diff proposal.
+Write `{rrd_artifacts}/detect-dependencies-{target_project}.md` (following `./resources/knowledge/detect-report-template.md`'s structure) containing, for each finding: title, coupling shape, risk level, evidence citation, and a link to its diff proposal.
 
 ### 2. Write Diff Proposals
 

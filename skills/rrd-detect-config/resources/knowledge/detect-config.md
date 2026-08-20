@@ -28,4 +28,4 @@ A real `rrd-apply-and-verify` run caught this live: converting `public static fi
 
 ## Calibration Note
 
-Some hardcoded values may be intentional for a specific, narrow reason (e.g. a fixed public sandbox URL that genuinely never changes across environments). Since Ray no longer carries cross-session calibration memory, treat any owner statement of "this is known and accepted" as in-session context for that run, not as something to persist automatically.
+Some hardcoded values may be intentional for a specific, narrow reason (e.g. a fixed public sandbox URL that genuinely never changes across environments). Ray does not carry cross-session calibration memory — treat any owner statement of "this is known and accepted" as in-session context for that run, not as something to persist automatically.

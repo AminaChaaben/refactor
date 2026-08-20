@@ -79,15 +79,15 @@ Diff proposals are written with each workflow's own **Write** tool directly to t
 
 **Init responsibility:** each workflow's `step-01-preflight-and-init.md` verifies the target project is indexed (`index_status` / `list_projects`) before running; if not, it tells the owner to run `index_repository` first rather than guessing at ungraphed code.
 
-## Historical artifact — the one real finding
+## Reference Finding — Preserved on Disk
 
-Before this restructure, Ray (as a memory agent) logged one real finding from analyzing this project's own CRM Playwright suite, and produced two real diff proposals. These are **preserved on disk, untouched**, as a historical record of the pre-restructure architecture — they are not deleted, but the memory contract that produced them is no longer active:
+One real finding from analyzing this project's own CRM Playwright suite, and two real diff proposals, are preserved on disk as a worked example (not an active memory contract any workflow depends on):
 
 - `C:\Users\achaabane\Desktop\BMAD_cursor\_bmad\memory\rrd-agent-radar\findings-log.md` — the finding (shared live `crmPage` fixture across 5 CRM spec files; a delete-all test on that shared instance)
 - `C:\Users\achaabane\Desktop\BMAD_cursor\proposals\tests__e2e__crm-workspace__settings.spec.ts.1.patch`
 - `C:\Users\achaabane\Desktop\BMAD_cursor\proposals\playwright.config.ts.1.patch`
 
-The finding's *content* is also migrated forward into the new architecture's equivalent knowledge fragment, as a worked "Reference Example": `rrd-agent-radar/resources/knowledge/detect-dependencies.md`.
+The finding's *content* is also captured as a worked "Reference Example" in `rrd-agent-radar/resources/knowledge/detect-dependencies.md`.
 
 ## File tree
 

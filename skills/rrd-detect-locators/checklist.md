@@ -6,6 +6,7 @@
 - [ ] Target project confirmed indexed
 - [ ] Knowledge fragment loaded: `evidence-and-diff-discipline.md`
 - [ ] Knowledge fragment loaded: `detect-locators.md`
+- [ ] Knowledge fragment loaded: `detect-report-template.md`
 - [ ] Checked whether `rrd-detect-instability` has already run on this target — if so, its fragile-selector findings are consumed as input, not re-detected
 
 **Halt if missing:** target project not indexed.
@@ -27,5 +28,5 @@
 
 ## Completion Criteria
 
-- [ ] Findings summary written to `{rrd_artifacts}/detect-locators-{target_project}-{date}.md`
+- [ ] Findings summary written to `{rrd_artifacts}/detect-locators-{target_project}.md`
 - [ ] All diff proposals written to the target project's `proposals/`, listed in the summary

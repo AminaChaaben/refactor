@@ -39,6 +39,10 @@ Ask the user for values. Show defaults in brackets. Present all values together 
 
 **Module config**: Read each variable in `./assets/module.yaml` that has a `prompt` field. Ask using that prompt with its default value (or legacy value if available).
 
+## Cache Ray's Runtime State Before Running Scripts
+
+If `{project-root}/_bmad/rrd/config.yaml` already exists, read it now and note any `last_category`/`last_code` values present. **Do this before the Write Files step below** — `merge-config.py` treats this same file as a legacy fallback source and deletes it as part of its own cleanup, so by the time the later "Write the Module-Level Config Mirror" step runs, the file may already be gone. The values cached here are what that later step must carry forward.
+
 ## Resolve the Python Interpreter
 
 `python3` is not guaranteed to exist on PATH — confirmed absent on at least one real Windows/Git-Bash environment this module was tested in, where only `python`/`py` were available. Before running any script below, resolve the working interpreter once: try `python3 --version`, then `python --version`, then `py --version`, and use the first one that succeeds for every invocation in this skill. Do not assume `python3` and let the command fail silently into a stop — this is a cheap, one-time check, not a per-call retry.
@@ -74,21 +78,13 @@ Check `directories_removed` and `files_removed_count` in the JSON output for the
 
 ## Write the Module-Level Config Mirror
 
-**Deviation note (judgment call):** this generic setup-skill template writes to the newer unified `{project-root}/_bmad/config.yaml` (module section) format. Refactor Radar's five workflow skills (`rrd-detect-*`, `rrd-audit-all`) were built to match the Test Architecture Enterprise module's structural convention exactly, per explicit project decision, which reads its module config from a dedicated **module-level file**, `{config_source}: "{project-root}/_bmad/tea/config.yaml"` — not the unified file. To keep that fidelity without fighting the current tooling, after the merge scripts succeed, also write a thin mirror file at `{project-root}/_bmad/rrd/config.yaml` containing the resolved values relevant to the five workflows:
+**Deviation note (judgment call):** this generic setup-skill template writes to the newer unified `{project-root}/_bmad/config.yaml` (module section) format. Refactor Radar's five workflow skills (`rrd-detect-*`, `rrd-audit-all`) were built to match the Test Architecture Enterprise module's structural convention exactly, per explicit project decision, which reads its module config from a dedicated **module-level file**, `{config_source}: "{project-root}/_bmad/tea/config.yaml"` — not the unified file. To keep that fidelity without fighting the current tooling, after the merge scripts succeed, also write a thin mirror file at `{project-root}/_bmad/rrd/config.yaml`, built from two template files (kept as separate assets, not inlined here, so the field-level comments stay easy to maintain and don't require editing this instruction file):
 
-```yaml
-# Refactor Radar module configuration (mirror of the rrd section in _bmad/config.yaml
-# and the rrd_artifacts/user settings in _bmad/config.user.yaml — written for
-# structural parity with Test Architecture Enterprise's module-level config file
-# convention; the unified _bmad/config.yaml remains the source of truth on reconfigure)
-rrd_artifacts: "{resolved rrd_artifacts value}"
-output_folder: "{resolved output_folder value}"
-user_name: "{resolved user_name value}"
-communication_language: "{resolved communication_language value}"
-document_output_language: "{resolved document_output_language value}"
-```
+1. Read `./assets/rrd-config-template.yaml` and substitute its placeholders: `{{RRD_ARTIFACTS}}`, `{{OUTPUT_FOLDER}}`, `{{USER_NAME}}`, `{{COMMUNICATION_LANGUAGE}}`, `{{DOCUMENT_OUTPUT_LANGUAGE}}` with the resolved values. This always gets written, every setup run — it's the full commented base file.
+2. If `last_category`/`last_code` were cached in the "Cache Ray's Runtime State" step above, also read `./assets/rrd-config-runtime-fragment.yaml`, substitute `{{LAST_CATEGORY}}`/`{{LAST_CODE}}` with the cached values, and append it to the base file's content. If neither was cached (first-ever setup, or Ray has never dispatched anything yet), skip this fragment entirely — do not append it with empty/placeholder values.
+3. Write the combined result to `{project-root}/_bmad/rrd/config.yaml`.
 
-Create `{project-root}/_bmad/rrd/` if it does not exist. Re-write this mirror file every time setup/configure runs (anti-zombie: overwrite, don't append).
+Create `{project-root}/_bmad/rrd/` if it does not exist. Re-write this mirror file every time setup/configure runs (anti-zombie: overwrite, don't append) — the runtime fragment is the only part that varies per-run based on prior state; the base template is always written fresh from the asset file, so the file stays self-documenting even after a hand-edit strips a comment out.
 
 ## Confirm
 

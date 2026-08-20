@@ -31,4 +31,4 @@ If `rrd-detect-instability` has already run on this target, its fragile-selector
 
 ## Calibration Note
 
-A small, deliberately minimal test suite may not warrant a full locator-repository migration — recommending one for a 3-test smoke suite is disproportionate. Since Ray no longer carries cross-session calibration memory, treat any owner statement of "this is intentionally minimal" as in-session context for that run, not as something to persist automatically.
+A small, deliberately minimal test suite may not warrant a full locator-repository migration — recommending one for a 3-test smoke suite is disproportionate. Ray does not carry cross-session calibration memory — treat any owner statement of "this is intentionally minimal" as in-session context for that run, not as something to persist automatically.

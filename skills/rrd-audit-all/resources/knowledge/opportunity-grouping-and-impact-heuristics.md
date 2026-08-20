@@ -295,7 +295,7 @@ Result: 0-100 score
 
 ### Estimated Lines to Change — Family-Specific Strategy
 
-**CALIBRATION NOTE (fixed after real-data validation on jarvis, 2026-08-11):** treating every fix as proportional to whole-file size badly overestimates localized fixes. A dependency-injection change on a 327-line file does not touch 327 × 0.4 ≈ 131 lines — it touches the constructor and each call site, realistically ~45 lines total. The old flat formula produced 481 lines summed across 5 files for a change that actually needed ~45. Use one of two strategies depending on what the recommendation actually does to the file, not a single flat multiplier for every root cause:
+**Rule:** treating every fix as proportional to whole-file size badly overestimates localized fixes. A dependency-injection change on a 327-line file does not touch 327 × 0.4 ≈ 131 lines — it touches the constructor and each call site, realistically far fewer. Use one of two strategies depending on what the recommendation actually does to the file, not a single flat multiplier for every root cause:
 
 **Strategy A — Whole-file-scope changes.** Use when the fix genuinely rewrites or removes a large fraction of a file: exact-duplicate file deletion/merge, a full selector-pattern rewrite across a page object, wholesale data-fixture rearchitecture.
 
@@ -353,7 +353,7 @@ else:
 
 ## Part 6: Priority Scoring
 
-**CALIBRATION NOTE (fixed after real-data validation on jarvis, 2026-08-11):** the original formula multiplied `impact_score` (typically a single- or low-double-digit number) by `overall_confidence` expressed on a 0-100 scale, then divided by small numbers (`effort_score × risk_factor`, max ~6). Confidence dominated the ratio, and the raw result almost always exceeded 100 before clamping — a real jarvis opportunity with just 9 direct callers and no execution evidence produced a raw score of 129, clamped straight to 100/Critical. Nearly every opportunity with any real impact would land in the same bucket, which makes the ranking non-discriminating. Two changes fix this:
+**Rule:** multiplying `impact_score` (typically a single- or low-double-digit number) by confidence expressed on a 0-100 scale, then dividing by small numbers (`effort_score × risk_factor`, max ~6), lets confidence dominate the ratio — the raw result almost always exceeds 100 before clamping, so nearly every opportunity with any real impact lands in the same "Critical" bucket, making the ranking non-discriminating. Two changes fix this:
 
 1. Confidence is used as a 0-1 fraction (`confidence_ratio`), not a 0-100 value, to match `impact_score`'s units.
 2. Raw scores are normalized **relative to the current audit run** (min-max scaled across every opportunity produced this run) rather than compared against fixed absolute thresholds. A single audit's "Critical" is relative to what else that codebase surfaced — a codebase with only minor issues shouldn't have every opportunity screaming Critical.

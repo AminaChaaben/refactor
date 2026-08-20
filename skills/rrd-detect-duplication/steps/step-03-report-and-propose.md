@@ -10,7 +10,7 @@ nextStepFile: null
 
 ### 1. Write Findings Summary
 
-Write `{rrd_artifacts}/detect-duplication-{target_project}-{date}.md`: each duplicate group with similarity score, files/symbols, and evidence citation.
+Write `{rrd_artifacts}/detect-duplication-{target_project}.md` (following `./resources/knowledge/detect-report-template.md`'s structure): each duplicate group with similarity score, files/symbols, and evidence citation.
 
 ### 2. Write Diff Proposals
 

@@ -37,10 +37,10 @@ These findings carry full confidence — no caveat needed, no external dependenc
 
 ### 3b. Live "Latest Version" Check (Best-Effort Pointer Only — Never Asserted as Fact)
 
-Testing this skill against a real project showed that no free live source is reliably correct: direct Maven Central metadata fetches returned HTTP 403 for every artifact tried; `search.maven.org`'s `core=gav` mode returned a stale/wrong version; its default-core `latestVersion` field returned a pre-release as if it were current; and independent lookups disagreed with each other with no tiebreaker. Given this, treat any live check as a **candidate, not a verified fact**:
+No free live source is reliably correct: direct Maven Central metadata fetches can return HTTP 403; `search.maven.org`'s `core=gav` mode can return a stale/wrong version; its default-core `latestVersion` field can return a pre-release as if it were current; and independent lookups can disagree with each other with no tiebreaker. Treat any live check as a **candidate, not a verified fact**:
 
-- Attempt one lookup per artifact (`WebSearch` for the package name plus "latest version," or a registry endpoint if reachable) and record the source and date.
-- Present the result as `candidate — verify before applying, per {source}, checked {date}`, never as a bare version number implying it's confirmed current.
+- Attempt one lookup per artifact (`WebSearch` for the package name plus "latest version," or a registry endpoint if reachable) and record the source.
+- Present the result as `candidate — verify before applying, per {source}`, never as a bare version number implying it's confirmed current.
 - If the lookup fails or disagrees with another source you happen to have checked, say so plainly rather than picking one silently.
 - **Do not fall back to `./resources/version-database.csv` as if it were a live answer.** The CSV is for CVE/severity/toolchain judgment (step 4), not a version list — presenting its `latest_safe_version` column as "the current version" is the same overclaiming this step exists to avoid.
 - This step never blocks or degrades the structural findings from step 3 — those stand on their own regardless of whether a live check succeeds.

@@ -10,7 +10,7 @@ nextStepFile: null
 
 ### 1. Write Findings Summary
 
-Write `{rrd_artifacts}/detect-locators-{target_project}-{date}.md`: the duplicated locator or strategy gap, its location(s), category (duplication / priority-tiering / missing-repository), and evidence citation per finding.
+Write `{rrd_artifacts}/detect-locators-{target_project}.md` (following `./resources/knowledge/detect-report-template.md`'s structure): the duplicated locator or strategy gap, its location(s), category (duplication / priority-tiering / missing-repository), and evidence citation per finding.
 
 ### 2. Write Diff Proposals
 

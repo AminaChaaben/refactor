@@ -2,8 +2,6 @@
 
 # Analyze Test Reliability
 
-**Version:** 1.0 (Step-File Architecture)
-
 ---
 
 ## Overview

@@ -22,7 +22,7 @@ variables:
   target_project: "" # resolved via list_projects / index_status in step 1
 
 # Output configuration
-default_output_file: "{rrd_artifacts}/detect-dependencies-{target_project}-{date}.md"
+default_output_file: "{rrd_artifacts}/detect-dependencies-{target_project}.md"
 diff_output_folder: "{target_project_root}/proposals" # always the TARGET project's own proposals/, never this skill's folder
 
 # Required tools

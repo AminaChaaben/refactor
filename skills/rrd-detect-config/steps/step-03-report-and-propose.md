@@ -10,7 +10,7 @@ nextStepFile: null
 
 ### 1. Write Findings Summary
 
-Write `{rrd_artifacts}/detect-config-{target_project}-{date}.md`: the exact hardcoded value/inline logic, its location, category (URL/credential/timeout/env-switch/parallel-config), and evidence citation per finding.
+Write `{rrd_artifacts}/detect-config-{target_project}.md` (following `./resources/knowledge/detect-report-template.md`'s structure): the exact hardcoded value/inline logic, its location, category (URL/credential/timeout/env-switch/parallel-config), and evidence citation per finding.
 
 ### 2. Write Diff Proposals
 

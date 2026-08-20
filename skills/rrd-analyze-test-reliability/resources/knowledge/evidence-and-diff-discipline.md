@@ -18,13 +18,13 @@ Before querying anything, resolve which project graph to use via `mcp__codebase-
 
 Report a confidence level (high / medium / low) on every finding. For this workflow: a classification based on 5+ runs with a structured report format (JUnit XML, Playwright JSON) is high confidence; one based on 2 runs or a best-effort Jenkins-console-text parse is medium; anything inferred without enough runs to actually establish consistency is low and should say so rather than presenting as settled.
 
-## Memory retired — check history manually if it exists
+## Calibration Notes Are Session-Scoped
 
-Ray no longer carries cross-session memory (no sanctum, no `findings-log.md`/`calibration.md` read on activation) — this is a deliberate structural-fidelity decision, not an oversight. If a project has a historical findings log, it is safe to read as reference context but is not an active memory contract this workflow depends on.
+Ray does not carry cross-session memory (no sanctum, no `findings-log.md`/`calibration.md` read on activation). Treat any owner statement that a finding is "known and accepted" as context for the current run only — it does not suppress that finding in a future run. If a project has a historical findings log (e.g. `{project-root}/_bmad/memory/rrd-agent-radar/findings-log.md`), it is safe to read as reference context to avoid immediately re-reporting a settled finding, but it is not an active memory contract any detection workflow depends on.
 
-## Tool Usage Discipline: `search_code` (lesson from a real miss)
+## Tool Usage Discipline: `search_code` Result Interpretation
 
-A real audit run once nearly reported `search_code` as "unreliable" for missing a confirmed match. Root cause, after digging in: operator error, not a tool defect. Two rules prevent this recurring:
+`search_code` can silently return zero results from a malformed query rather than from a true absence of matches. Two rules prevent misreading that as "no finding":
 
 1. **`file_pattern` is a filename glob (grep `--include` semantics), not a path glob.** `*.spec.ts` is correct; `tests/**` is not — it matches no filename, so grep silently matches zero files. To scope by directory/path, use `path_filter` (a regex on the result file path, e.g. `^tests/`) instead, or combine both.
 2. **Always compare `total_grep_matches` to `total_results` to `limit` before concluding "no finding."** `search_code` explicitly ranks test files *last* by design — a real match can exist in `total_grep_matches` but fall below `limit` in the enriched, ranked `results`.

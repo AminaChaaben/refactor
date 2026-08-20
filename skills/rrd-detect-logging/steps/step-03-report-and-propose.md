@@ -10,7 +10,7 @@ nextStepFile: null
 
 ### 1. Write Findings Summary
 
-Write `{rrd_artifacts}/detect-logging-{target_project}-{date}.md`: each logging-gap finding grouped by gap type (Silent Catch / Exception-Dropping Log / Unlogged External Call / Unlogged Loop Failure Path / Context-Free Stack Trace), naming the function/method, file:line, the confirmed source-level gap, its failure-classification tag, and evidence citation (the exact `query_graph`/`search_code` call and result). Report the Failure-Diagnostics Capture check as its own section, separate from the logging-gap findings — state plainly whether it's present-and-correct, present-but-gapped (which browsers/runners lack coverage), or absent entirely.
+Write `{rrd_artifacts}/detect-logging-{target_project}.md` (following `./resources/knowledge/detect-report-template.md`'s structure): each logging-gap finding grouped by gap type (Silent Catch / Exception-Dropping Log / Unlogged External Call / Unlogged Loop Failure Path / Context-Free Stack Trace), naming the function/method, file:line, the confirmed source-level gap, its failure-classification tag, and evidence citation (the exact `query_graph`/`search_code` call and result). Report the Failure-Diagnostics Capture check as its own section, separate from the logging-gap findings — state plainly whether it's present-and-correct, present-but-gapped (which browsers/runners lack coverage), or absent entirely.
 
 ### 2. Write Diff Proposals
 

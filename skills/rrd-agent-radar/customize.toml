@@ -77,7 +77,7 @@ category = "1"
 
 [[agent.menu]]
 code = "AA"
-description = "Audit All — run all five structural detectors and produce one consolidated, ranked HTML report"
+description = "Audit All — run all ten structural detectors and produce one consolidated, ranked HTML report"
 skill = "rrd-audit-all"
 category = "2"
 recommended = true
@@ -122,6 +122,30 @@ category = "2"
 code = "DV"
 description = "Detect Tech Versions — Selenium/Playwright stacks only: check pinning/centralization discipline, curated CVEs, and breaking-migration risk (fully reliable); surfaces 'latest version' only as an unverified candidate to check yourself"
 skill = "rrd-detect-tech-versions"
+category = "2"
+
+[[agent.menu]]
+code = "DF"
+description = "Detect Config — find hardcoded URLs/credentials, inline environment-switch logic, and unsafe parallel-execution config"
+skill = "rrd-detect-config"
+category = "2"
+
+[[agent.menu]]
+code = "DO"
+description = "Detect Locators — find duplicated selector definitions, absent priority tiering (data-testid > ARIA/role > semantic > absolute XPath), and no centralized element repository"
+skill = "rrd-detect-locators"
+category = "2"
+
+[[agent.menu]]
+code = "DY"
+description = "Detect Layering — find mixed responsibilities in one directory, cross-layer violations (assertions in page objects, raw data access in tests), and inconsistent naming conventions"
+skill = "rrd-detect-layering"
+category = "2"
+
+[[agent.menu]]
+code = "SA"
+description = "Standards Audit — find governance gaps (missing conventions docs, Definition-of-Done, lint config, CODEOWNERS) using a completed Audit All run's findings as evidence. Run Audit All first."
+skill = "rrd-standards-audit"
 category = "2"
 
 [[agent.menu]]

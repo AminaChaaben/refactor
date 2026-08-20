@@ -10,7 +10,7 @@ nextStepFile: null
 
 ### 1. Write Findings Summary
 
-Write `{rrd_artifacts}/detect-instability-{target_project}-{date}.md`: each finding with file:line, confidence level, and evidence citation.
+Write `{rrd_artifacts}/detect-instability-{target_project}.md` following `./resources/knowledge/detect-report-template.md`'s structure: each finding with file:line, confidence level, and evidence citation.
 
 ### 2. Write Diff Proposals
 

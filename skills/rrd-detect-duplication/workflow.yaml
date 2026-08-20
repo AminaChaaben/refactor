@@ -19,7 +19,7 @@ variables:
   target_project: ""
   similarity_threshold: "default" # owner may narrow/widen the net
 
-default_output_file: "{rrd_artifacts}/detect-duplication-{target_project}-{date}.md"
+default_output_file: "{rrd_artifacts}/detect-duplication-{target_project}.md"
 diff_output_folder: "{target_project_root}/proposals"
 
 required_tools:

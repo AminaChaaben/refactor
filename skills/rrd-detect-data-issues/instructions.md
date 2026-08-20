@@ -2,8 +2,6 @@
 
 # Detect Data Issues
 
-**Version:** 1.0 (Step-File Architecture)
-
 ---
 
 ## Overview

@@ -6,6 +6,7 @@
 - [ ] Target project confirmed indexed (or owner told to run `index_repository` first)
 - [ ] Knowledge fragment loaded: `./resources/knowledge/evidence-and-diff-discipline.md`
 - [ ] Knowledge fragment loaded: `./resources/knowledge/detect-dependencies.md`
+- [ ] Knowledge fragment loaded: `./resources/knowledge/detect-report-template.md`
 
 **Halt if missing:** target project not indexed.
 
@@ -30,5 +31,5 @@
 ## Completion Criteria
 
 - [ ] Findings summary produced (count, risk levels, files/tests involved)
-- [ ] Output written to `{rrd_artifacts}/detect-dependencies-{target_project}-{date}.md`
+- [ ] Output written to `{rrd_artifacts}/detect-dependencies-{target_project}.md`
 - [ ] All diff proposals written to the target project's `proposals/`, listed in the summary

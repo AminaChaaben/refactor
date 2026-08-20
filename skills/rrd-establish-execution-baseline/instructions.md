@@ -2,8 +2,6 @@
 
 # Establish Execution Baseline
 
-**Version:** 1.0 (Step-File Architecture)
-
 ---
 
 ## Overview

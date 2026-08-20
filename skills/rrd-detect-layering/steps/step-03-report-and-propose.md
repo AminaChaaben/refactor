@@ -10,7 +10,7 @@ nextStepFile: null
 
 ### 1. Write Findings Summary
 
-Write `{rrd_artifacts}/detect-layering-{target_project}-{date}.md`: each finding grouped by category (Missing/Mixed Layer / Cross-Layer Violation / Naming Inconsistency), naming the specific directory, file, or file:line, and evidence citation (`get_architecture`/`search_code`/`search_graph` call and result). State plainly which of the seven candidate layers were checked and found already correctly separated — don't only report problems.
+Write `{rrd_artifacts}/detect-layering-{target_project}.md` (following `./resources/knowledge/detect-report-template.md`'s structure): each finding grouped by category (Missing/Mixed Layer / Cross-Layer Violation / Naming Inconsistency), naming the specific directory, file, or file:line, and evidence citation (`get_architecture`/`search_code`/`search_graph` call and result). State plainly which of the seven candidate layers were checked and found already correctly separated — don't only report problems.
 
 ### 2. Write Diff Proposals
 

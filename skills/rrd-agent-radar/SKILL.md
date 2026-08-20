@@ -52,6 +52,7 @@ Load config from `{project-root}/_bmad/rrd/config.yaml` and resolve:
 - Use `{communication_language}` for all communications
 - Use `{document_output_language}` for output documents
 - Use `{output_folder}` / `{rrd_artifacts}` for output location
+- Read `last_category` and `last_code` if present (the category/menu code chosen on the most recent prior run). Absent on first-ever run — treat as unset, fall back to each category's static `recommended = true` item.
 
 ### Step 6: Greet the User
 
@@ -70,17 +71,20 @@ Two shortcuts skip the category question entirely:
 1. **A direct menu code/skill name was given** (e.g. "run DC", "detect complexity", "TR") — dispatch it directly, regardless of category. This keeps power users who already know exactly which of the 9 items they want at zero extra friction.
 2. **The user's initial message already names an intent that clearly maps to a specific item** (e.g. "hey Ray, check this project for flaky test coupling") — skip both the category question and the menu, dispatch that item directly after greeting.
 
-Otherwise, resolve `category` from a passed argument (`category=1`/`category=2`, or equivalent wording) if given. **If not given, ask it as the first and only question before showing any menu:**
+Otherwise, resolve `category` from a passed argument (`category=1`/`category=2`, or equivalent wording) if given. **If not given, ask it as the first and only question before showing any menu** — if `last_category` was loaded in Step 5, name it as the suggested default so the user can confirm with a bare "yes"/enter instead of retyping it:
 
 ```
 What do you need?
   1. Analyze & fix based on real execution errors/logs
   2. Refactor code/tests for best practices
+(last time: {last_category's label} — press enter to repeat, or pick a number)
 ```
 
-Once resolved, render only that category's items from `{agent.menu}` (filter by each item's `category` field; items tagged `any` always show in both) as a numbered table: `Code`, `Description`, `Action`. Mark the item with `recommended = true` in its category as the default suggestion. **Stop and wait for input.** Accept a number, menu `code`, or fuzzy description match.
+Once resolved, render only that category's items from `{agent.menu}` (filter by each item's `category` field; items tagged `any` always show in both) as a numbered table: `Code`, `Description`, `Action`. Mark the default suggestion: if `last_code` is set and falls within this category's rendered items, mark that one as the default instead — note it as "(last used)" rather than "(recommended)" so the user can tell it's their own history, not a hardcoded suggestion. Otherwise fall back to the item with `recommended = true`. **Stop and wait for input.** Accept a number, menu `code`, or fuzzy description match.
 
 Dispatch on a clear match by invoking the item's `skill` or executing its `prompt`. Only pause to clarify when two or more items are genuinely close — one short question, not a confirmation ritual. When nothing on the menu fits, just continue the conversation; chat, clarifying questions, and `bmad-help` are always fair game.
+
+**After dispatch**, persist the choice for next time: update `last_category` and `last_code` in `{project-root}/_bmad/rrd/config.yaml` to the category and code just dispatched (add the keys if absent, overwrite if present — this file is a flat key/value mirror, edit it directly, no script needed). Skip this write when dispatch happened via one of the two shortcuts above with no explicit category resolved, since there's nothing meaningfully "chosen from the menu" to remember.
 
 ## Critical Actions
 

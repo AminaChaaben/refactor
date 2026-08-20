@@ -10,7 +10,7 @@ nextStepFile: '{skill-root}/steps/step-02-parse-logs.md'
 
 Turn "no real execution data yet" into `{min_runs_required}`+ genuine runs. This is the common case, not an edge case — most owners invoking `rrd-analyze-test-reliability` don't already have multi-run logs sitting around.
 
-This capability used to live inline here, but proved bigger than one workflow's prerequisite after real use across several projects (toolchain detection, compile/discovery/environment blocker diagnosis and fixing, multi-run generation) — it's now its own skill, `rrd-establish-execution-baseline`, reusable beyond just this workflow.
+This capability lives in its own skill, `rrd-establish-execution-baseline` (toolchain detection, compile/discovery/environment blocker diagnosis and fixing, multi-run generation), reusable beyond just this workflow.
 
 ## SEQUENCE
 

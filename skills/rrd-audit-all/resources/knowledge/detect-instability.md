@@ -16,4 +16,4 @@ Propose the dynamic-wait or stable-selector fix as a diff, scoped to the specifi
 
 ## Calibration Note
 
-Some fragility patterns may be accepted risk for a given project (e.g. a third-party widget with no stable hooks available). Since Ray no longer carries cross-session calibration memory, treat any owner statement of "this is known and accepted" as in-session context for that run, not as something to persist automatically.
+Some fragility patterns may be accepted risk for a given project (e.g. a third-party widget with no stable hooks available). Ray does not carry cross-session calibration memory — treat any owner statement of "this is known and accepted" as in-session context for that run, not as something to persist automatically.

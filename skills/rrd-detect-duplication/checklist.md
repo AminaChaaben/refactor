@@ -6,6 +6,7 @@
 - [ ] Target project confirmed indexed
 - [ ] Knowledge fragment loaded: `evidence-and-diff-discipline.md`
 - [ ] Knowledge fragment loaded: `detect-duplication.md`
+- [ ] Knowledge fragment loaded: `detect-report-template.md`
 - [ ] Similarity threshold confirmed with owner (or default used)
 
 **Halt if missing:** target project not indexed.
@@ -26,5 +27,5 @@
 
 ## Completion Criteria
 
-- [ ] Findings summary written to `{rrd_artifacts}/detect-duplication-{target_project}-{date}.md`
+- [ ] Findings summary written to `{rrd_artifacts}/detect-duplication-{target_project}.md`
 - [ ] All diff proposals written to the target project's `proposals/`, listed in the summary
