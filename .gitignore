@@ -21,3 +21,15 @@ _bmad-output/
 .refactor-radar-work/
 test-results/
 proposals/
+
+# Project files: Keep repo minimal (rrd-* skills + config only)
+/tests/
+/docs/
+/.nvmrc
+/CLAUDE.md
+/Complete\ Refactor\ Radar\ Workflow\ Ec.md
+/categories.md
+/crm_workspace.feature
+/package.json
+/playwright.config.ts
+/tsconfig.json
