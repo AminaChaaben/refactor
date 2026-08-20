@@ -90,7 +90,7 @@ category = "2"
 
 [[agent.menu]]
 code = "DI"
-description = "Detect Instability — find fragile selectors, fixed waits, and unhandled overlays/dialogs that make tests flaky"
+description = "Detect Instability — find fragile selectors, fixed waits (incl. sleeps stacked after real waits), unhandled overlays/dialogs, mixed implicit/explicit waits, stale WebElement reuse, loader-disappearance-as-success, unguarded stale-element retries, blanket retries, and window/context handling bugs that make tests flaky"
 skill = "rrd-detect-instability"
 category = "2"
 
@@ -120,7 +120,7 @@ category = "2"
 
 [[agent.menu]]
 code = "DV"
-description = "Detect Tech Versions — find outdated Java/JUnit/Spring/Selenium/Maven/npm versions, flag CVEs and breaking framework migrations, propose modernization upgrades"
+description = "Detect Tech Versions — Selenium/Playwright stacks only: check pinning/centralization discipline, curated CVEs, and breaking-migration risk (fully reliable); surfaces 'latest version' only as an unverified candidate to check yourself"
 skill = "rrd-detect-tech-versions"
 category = "2"
 
