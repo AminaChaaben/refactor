@@ -4,15 +4,13 @@
 # Keep these folders/files
 !/skills/
 !/.gitignore
+!/README-RRD.md
 !/.claude/
-!/.claude/skills/
 !/_bmad/
-!/_bmad/config.yaml
-!/_bmad/module-help.csv
 
 # Keep files inside kept folders
 !/skills/**
-!/.claude/skills/**
+!/.claude/**
 !/_bmad/**
 
 # BMad: Explicitly ignore personal/output files
