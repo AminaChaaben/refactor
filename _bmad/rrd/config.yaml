@@ -1,0 +1,59 @@
+# Refactor Radar module configuration (mirror of the rrd section in _bmad/config.yaml
+# and the rrd_artifacts/user settings in _bmad/config.user.yaml — written for
+# structural parity with Test Architecture Enterprise's module-level config file
+# convention; the unified _bmad/config.yaml remains the source of truth on reconfigure).
+#
+# This file is safe to hand-edit at any time — Ray and every rrd-* workflow re-read it
+# on each activation, and rrd-setup preserves any value already here (see field notes
+# below) rather than blindly overwriting it. You do not need to re-run setup just to
+# change one of these values.
+
+# Where Ray writes findings summaries and audit reports (not diff proposals, which
+# always go to the target project's own proposals/). Any path; {project-root} is a
+# literal token, not a placeholder to resolve by hand.
+rrd_artifacts: "{project-root}/_bmad-output/rrd-artifacts"
+
+# Root output directory for this project's BMad-generated artifacts, shared across
+# modules. Any path; {project-root} is a literal token.
+output_folder: "{project-root}/_bmad-output"
+
+# Name Ray/other agents use to greet you. Any string.
+user_name: "achaabane"
+
+# Language for all agent communication in this session (chat responses). Any language
+# name Claude can converse in, e.g. "English", "Swahili", "French".
+communication_language: "English"
+
+# Language for written output documents (reports, findings summaries) — can differ from
+# communication_language. Same value space.
+document_output_language: "English"
+
+# --- Runtime state below: written by Ray (rrd-agent-radar) after each menu dispatch, ---
+# --- not by setup. Safe to hand-edit or delete; absent = no default suggested yet.   ---
+
+# Which category Ray suggests by default on next activation. Valid values: "1"
+# (analyze & fix from real execution errors/logs) or "2" (refactor code/tests for best
+# practices). Delete this line to stop suggesting a default and always ask fresh.
+last_category: "2"
+
+# Which menu code Ray marks "(last used)" by default on next activation, within
+# whichever category is chosen. Valid values (one of Ray's menu codes):
+#   TR = Analyze Test Reliability      (category 1)
+#   EB = Establish Execution Baseline  (category 1)
+#   AA = Audit All                     (category 2)
+#   DD = Detect Dependencies           (category 2)
+#   DI = Detect Instability            (category 2)
+#   DT = Detect Data Issues            (category 2)
+#   DU = Detect Duplication            (category 2)
+#   DC = Detect Complexity             (category 2)
+#   DL = Detect Logging                (category 2)
+#   DV = Detect Tech Versions          (category 2)
+#   DF = Detect Config                 (category 2)
+#   DO = Detect Locators               (category 2)
+#   DY = Detect Layering               (category 2)
+#   SA = Standards Audit               (category 2)
+#   AV = Apply and Verify              (any category)
+# A code from the "wrong" category for the current last_category is simply ignored —
+# Ray falls back to that category's recommended = true item instead. Delete this line
+# to stop suggesting a default and always fall back to the recommended item.
+last_code: "AA"

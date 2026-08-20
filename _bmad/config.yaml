@@ -1,0 +1,13 @@
+document_output_language: English
+output_folder: '{project-root}/_bmad-output'
+rrd:
+  name: Refactor Radar
+  description: Graph-and-log-driven detection of test/code reliability and maintainability
+    defects (dependency/cascade, instability, data lifecycle, duplication, complexity
+    hotspots, logging/diagnosability gaps, config/environment leaks, locator-strategy
+    gaps, architecture layering) plus execution-log-driven false-positive/false-negative
+    test classification and governance/standards auditing — with reviewable diff proposals,
+    an explicit apply-and-verify step, a CI gate, and ticket export.
+  version: 3.0.0
+  default_selected: false
+  rrd_artifacts: '{project-root}/_bmad-output/rrd-artifacts'
