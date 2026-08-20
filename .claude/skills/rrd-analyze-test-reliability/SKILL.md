@@ -60,8 +60,18 @@ Activation is complete. Begin the workflow below.
 
 ## Workflow Architecture
 
-This workflow uses **single-mode step-file architecture** — plain sequential `steps/`. It is log-first and multi-run by nature, distinct from the five structural detectors, but reuses their heuristics as the explanation layer once execution history tells you where to look.
+This workflow uses **tri-modal architecture** (Create/Edit/Validate). It is log-first and multi-run by nature, letting you stop after Create (just scan logs) or after Edit (just classify), before committing to the full validated report.
+
+- **Create:** Scan logs, parse runs, aggregate per-test history. Output: raw classification data.
+- **Edit:** Manually review and correct auto-classifications, invoke detectors for structural confirmation. Output: curated findings.
+- **Validate:** Verify curated findings, generate final report with diffs, check quality gates. Output: findings summary.
 
 ## Initialization Sequence
 
-Load `{skill-root}/steps/step-01-preflight-and-init.md` and proceed sequentially through the numbered step files in `steps/`.
+On activation, ask the user which mode(s) to run. Accept these shortcuts:
+- `"create only"` → Run just Create, stop with raw data
+- `"create and edit"` or `"c,e"` → Run Create + Edit, stop before validation
+- `"all"` or `"c,e,v"` → Run all three (full workflow)
+- Default: `"all"`
+
+Then load and execute the modes in sequence from `{skill-root}/modes/`.

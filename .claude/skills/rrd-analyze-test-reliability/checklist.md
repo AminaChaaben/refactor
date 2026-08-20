@@ -1,41 +1,48 @@
 # Analyze Test Reliability Validation Checklist
 
-## Prerequisites
+**Workflow Architecture:** Create → Edit → Validate (tri-modal). User can stop after Create or Edit.
+
+## CREATE MODE — Prerequisites & Log Scanning
 
 - [ ] Target project resolved via `list_projects`/`index_status`, confirmed indexed
 - [ ] Knowledge fragments loaded: `evidence-and-diff-discipline.md`, `analyze-test-reliability.md`
 - [ ] Log source(s) resolved and format identified (JUnit XML / Playwright JSON / Jenkins console / other)
-- [ ] At least `{min_runs_required}` separate runs available — if not, generated them via `step-01b-generate-execution-logs.md` (the common case), not just told the owner and stopped
-- [ ] If generating logs required a source/config fix: written as a diff and applied via `rrd-apply-and-verify`, never edited directly by this workflow — the only direct-creation exception is a missing fixture the project's own config already expected (net-new, not a modification)
-- [ ] If a discovery gap was found (report shows far fewer tests than real `@Test`-annotated methods in source), diagnosed and fixed rather than mistaken for "this project has few tests"
+- [ ] At least 2 separate runs available — if not, offer to generate them via `rrd-establish-execution-baseline` (the common case)
+- [ ] If generating logs required a source/config fix: offered to the user to apply via `rrd-apply-and-verify`, never edited directly by this workflow
+- [ ] If a discovery gap found (report shows far fewer tests than real `@Test`-annotated methods), diagnosed and explained
+- [ ] All log sources parsed successfully, every TestRun record contains: test_id, file, run_id, status, duration, error/stack_trace
+- [ ] Parsing coverage reported: N runs parsed, M distinct tests found, any parse failures listed
+- [ ] Raw parsed data written to `{project-root}/.refactor-radar-work/test-runs-parsed-{target_project}.json`
 
-**Halt if missing:** target project not indexed, or fewer than the minimum required runs are available and the owner hasn't explicitly accepted lower-confidence single-run analysis after log generation was attempted or explicitly declined.
+**Output:** User can review raw data and decide whether to proceed to Edit mode.
 
-## Log Parsing
-
-- [ ] Every log source parsed into the normalized `TestRun` record shape (test_id, file, run_id, status, duration, error/stack_trace)
-- [ ] XML parsed with a real XML-aware method, not regex
-- [ ] Playwright `retry` counts checked — a `retry > 0` test is a false-positive candidate even within one report
-- [ ] Jenkins-console-text-derived results explicitly marked lower confidence than structured formats
-
-## Classification
+## EDIT MODE — Classification & Manual Review
 
 - [ ] Every test's full run history aggregated before classifying (not judged from a single run)
 - [ ] Consistent-fail tests reported as Real Failures without further false-positive/negative classification
-- [ ] Mixed-status tests: actual failure messages/stack traces read across runs, and the matching detector skill (`rrd-detect-instability`/`rrd-detect-dependencies`/`rrd-detect-data-issues`) actually invoked, scoped to the flagged target — not just its knowledge fragment pattern-matched from memory. "Flaky" alone is not an accepted finding, and neither is an unconfirmed pattern match.
+- [ ] Mixed-status tests: actual failure messages/stack traces read across runs
+- [ ] For each Mixed-status test: the matching detector skill (`rrd-detect-instability`/`rrd-detect-dependencies`/`rrd-detect-data-issues`) actually invoked, scoped to the flagged target — not just its knowledge fragment pattern-matched from memory
+- [ ] User manually reviews each classification (accept/correct/skip) and can update failure-mode tags
 - [ ] Consistent-pass tests: source read in full for false-negative patterns (swallowed exceptions, unreachable assertions, tautological checks, race-condition false passes, no-op tests) before being called Healthy
-- [ ] Every Real Failure and confirmed False Positive additionally tagged with a failure-mode leaning (app-error / env-error / data-error / script-bug), derived from the actual error text — genuine ambiguity stated explicitly rather than forced into one tag
+- [ ] User confirms False Negative classifications and exact source lines
+- [ ] Every Real Failure and confirmed False Positive tagged with failure-mode (app-error / env-error / data-error / script-bug), derived from actual error text
+- [ ] Genuine ambiguity stated explicitly (not forced into one tag)
 - [ ] Every finding cites a specific run ID, error text, or source line — no unsupported classification
+- [ ] Curated findings written to `{project-root}/.refactor-radar-work/test-runs-classified-{target_project}.json`
 
-## Findings and Proposals
+**Output:** User can review curated findings and decide whether to proceed to Validate mode.
 
+## VALIDATE MODE — Report Generation & Verification
+
+- [ ] Quality gates passed: all findings have required evidence, confidence levels, failure-mode tags
 - [ ] False positives get a stabilization diff (per the matched structural heuristic's usual fix)
 - [ ] False negatives get a diff fixing the actual assertion/exception-handling/wait logic
+- [ ] Real failures: no diffs proposed (for owner's own app-code investigation)
 - [ ] Every fix written as a diff to the target project's `proposals/`, never applied directly
+- [ ] Findings summary written to `{rrd_artifacts}/test-reliability-{target_project}.md`, grouped into Real Failures / False Positives / False Negatives / Healthy
+- [ ] All findings cited in report with run IDs, error text/source lines, confidence levels, failure-mode tags
+- [ ] All diff proposals listed in report and written to `{project-root}/proposals/`
+- [ ] Report completeness verified: every classified test represented, no missing entries
+- [ ] Owner notified with summary: count per category, confidence breakdown, report/proposal paths
 
-## Completion Criteria
-
-- [ ] Findings summary written to `{rrd_artifacts}/test-reliability-{target_project}-{date}.md`, grouped into Real Failures / False Positives / False Negatives / Healthy
-- [ ] All diff proposals written to the target project's `proposals/`, listed in the summary
-- [ ] If any diffs were written, the owner was explicitly asked whether to apply-and-reverify via `rrd-apply-and-verify` — not invoked without that explicit yes, and not skipped/forgotten either
-- [ ] If approved and applied: a genuine before/after run comparison reported, including honestly reporting a partial (not fully resolved) result rather than rounding up to "fixed"
+**Output:** Final findings summary and diff proposals. Optional next step: `rrd-apply-and-verify` to test the fixes.
