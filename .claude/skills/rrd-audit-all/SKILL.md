@@ -60,18 +60,20 @@ Activation is complete. Begin the workflow below.
 
 ## Workflow Architecture
 
-This workflow uses **single-mode step-file architecture** — plain sequential `steps/`, not tri-modal Create/Edit/Validate. Detection runs don't have a meaningful separate edit/validate mode: there's no natural "edit an existing finding," and "validate" would just mean "re-run the detection." Audit All additionally packages the pooled findings from all four detectors into one ranked report, but the packaging step is still a plain sequential step, not a separate mode.
+This workflow uses **tri-modal architecture** (Create/Edit/Validate). Users can stop after Create (just run detectors, skip ranking) for 40-60% time savings on exploratory runs.
 
-## 🔒 CRITICAL EXECUTION CONSTRAINT: Steps Must Execute in Sequence
+- **Create:** Run all 10 detectors, generate raw findings. Output: `findings.json`.
+- **Edit:** Evidence fusion + opportunity grouping. Output: `opportunities.json` (ungrouped).
+- **Validate:** Impact analysis, ranking, report generation. Output: final HTML report + diffs.
 
-**This workflow has 7 distinct steps (01, 02, 02b, 02c, 02d, 02e, 03). Each step produces intermediate artifacts that the next step requires. Do not skip steps, combine steps, or substitute judgment for documented algorithms.**
-
-Why: Each step runs a formal algorithm (Union-Find grouping, graph traversal, priority formula) that must execute end-to-end. Skipping or shortcutting a step means downstream steps receive incomplete or invalid data, and the ranking/prioritization become unreliable.
-
-**Before proceeding past each step, validate the quality gates listed at the end of that step's file.** Quality gates are not optional — they are checkpoints that prevent downstream failure. If a checkpoint fails, halt and re-run the failing step, do not work around it.
-
-**If you are tempted to skip a step or gate because "the output looks good enough,"** stop. That instinct is exactly the failure mode this constraint prevents. The user scaffolded these steps and gates explicitly to prevent that. Execute the steps as documented.
+Each mode runs formal algorithms (graph traversal, Union-Find grouping, priority scoring) that must execute end-to-end within that mode. Quality gates checkpoint each mode's output before proceeding.
 
 ## Initialization Sequence
 
-Load `{skill-root}/steps/step-01-preflight-and-init.md` and proceed sequentially through the numbered step files in `steps/`. Do not skip any step file. Do not combine steps. Do not proceed past a step without validating its completion checkpoint.
+On activation, ask the user which mode(s) to run:
+- `"create only"` → Run just Create, stop with raw findings
+- `"create and edit"` or `"c,e"` → Run Create + Edit, stop before ranking
+- `"all"` or `"c,e,v"` → Run all three (full workflow)
+- Default: `"all"`
+
+Then load and execute the modes in sequence from `{skill-root}/modes/`.

@@ -1,58 +1,47 @@
 # Audit All Validation Checklist
 
-## Prerequisites
+**Workflow Architecture:** Create → Edit → Validate (tri-modal). User can stop after Create or Edit.
 
-- [ ] Target project resolved via `list_projects`/`index_status`
-- [ ] Target project confirmed indexed
-- [ ] Knowledge fragments loaded: `evidence-and-diff-discipline.md`, `detect-dependencies.md`, `detect-instability.md`, `detect-data-issues.md`, `detect-duplication.md`, `detect-complexity.md`, `detect-logging.md`, `detect-config.md`, `detect-locators.md`, `detect-layering.md`, `audit-all-report.md`
+## CREATE MODE — Run All Detectors
 
-**Halt if missing:** target project not indexed.
+- [ ] Target project resolved via `list_projects`/`index_status`, confirmed indexed
+- [ ] Knowledge fragments loaded: `evidence-and-diff-discipline.md` and 10 detector knowledge fragments
+- [ ] All 10 detectors (DD, DI, DT, DU, DC, DL, DF, DO, DY, DV) executed in sequence against target
+- [ ] Each detector generated findings with: id, detector_family, file, line, title, description, evidence, confidence, affected_target, root_cause_signals
+- [ ] No filtering or grouping applied — raw output only
+- [ ] All findings pooled into single array
+- [ ] Raw findings written to `{project-root}/.refactor-radar-work/findings.json`
+- [ ] Coverage reported: total findings by detector, unique affected targets
+- [ ] No null/empty evidence fields
 
-## Scope
+**Output:** User can review raw findings and decide whether to proceed to Edit mode.
 
-- [ ] Checked for a prior `refactor-radar-audit-*.html` report and git history before offering incremental mode
-- [ ] If incremental mode was offered, the tradeoff was stated (faster, narrower) and the owner explicitly chose — never silently defaulted to incremental
-- [ ] If incremental: `detect_changes` result's file list captured and used to scope every detector's `search_code`/`search_graph`/`query_graph` calls
-- [ ] If incremental: Detect Dependencies and Detect Locators additionally checked immediate neighbors of changed files, not changed files in isolation
-- [ ] Final report states which scope mode ran (full vs. incremental + file count)
+## EDIT MODE — Fuse Evidence & Group Opportunities
 
-## Detector Runs
+- [ ] Every pair of findings checked for shared affected_target and root_cause_signals
+- [ ] Graph traversal verified direct call paths between correlated findings
+- [ ] Correlations recorded with strength (strong/medium/weak)
+- [ ] Correlations pooled and written to `{project-root}/.refactor-radar-work/correlations.json`
+- [ ] Opportunities formed by grouping correlated findings
+- [ ] Each Opportunity includes: title, description, problem_statement, supporting_findings[], correlations[], root_causes[], affected_components[]
+- [ ] All findings from Create represented in at least one Opportunity (coverage check)
+- [ ] Opportunities written to `{project-root}/.refactor-radar-work/opportunities.json`
+- [ ] Grouping summary reported: opportunity count, findings per opportunity (min/max/avg), correlation strength distribution
 
-- [ ] Detect Dependencies logic run against target project
-- [ ] Detect Instability logic run against target project
-- [ ] Detect Data Issues logic run against target project
-- [ ] Detect Duplication logic run against target project
-- [ ] Detect Complexity logic run against target project
-- [ ] Detect Logging logic run against target project
-- [ ] Detect Config logic run against target project
-- [ ] Detect Locators logic run against target project
-- [ ] Detect Layering logic run against target project
-- [ ] All findings pooled into a single list
+**Output:** User can review grouped opportunities and decide whether to proceed to Validate mode.
 
-## Ranking and Grouping
+## VALIDATE MODE — Impact, Ranking & Report
 
-- [ ] Each finding has an estimated false-fail impact (not detector order)
-- [ ] Pooled list ranked by that estimate
-- [ ] Ranked list grouped by root-cause family (Dependencies, Instability, Data, Duplication, Complexity, Logging, Config, Locators, Layering)
-- [ ] A family with zero findings says so plainly rather than an empty section
+- [ ] Opportunities JSON complete: all required fields present, no nulls
+- [ ] Impact analysis run: false-fail risk, scope (isolated/moderate/codebase-wide), risk tier (critical/high/medium/low) estimated for each
+- [ ] Impact written to `{project-root}/.refactor-radar-work/opportunities-with-impact.json`
+- [ ] Ranking formula applied: false-fail impact (primary) + scope (secondary) + fixing cost + confidence
+- [ ] Opportunities sorted by rank (descending)
+- [ ] HTML report generated from `audit-report-template.html`: summary, opportunities table (rank/title/scope/risk/confidence), detailed findings
+- [ ] Report written to `{rrd_artifacts}/audit-report-{target_project}-{date}.html`
+- [ ] Diff proposals written for each fixable opportunity to `{project-root}/proposals/{file}.{finding_id}.patch`
+- [ ] Report completeness verified: all opportunities represented, no missing entries
+- [ ] Trend computed against `{rrd_artifacts}/audit-history/{target_project}.json` if prior runs exist; reported as "first tracked run" if not
+- [ ] This run's summary appended to history file (not overwritten), capped at 20 entries
 
-## Findings and Proposals
-
-- [ ] Every finding still carries its evidence citation
-- [ ] Every finding links to its own diff proposal file
-- [ ] Diff proposals written to the target project's `proposals/`, never a direct source edit
-
-## Report
-
-- [ ] Report is a single self-contained HTML file (inline CSS, no external assets, no build step)
-- [ ] Report follows `audit-report-template.html` structure, adapted to actual finding count
-- [ ] Report written to `{target_project_root}/proposals/refactor-radar-audit-{date}.html`
-- [ ] Trend computed against `{rrd_artifacts}/audit-history/{target_project}.json` if a prior snapshot exists; explicitly reported as "first tracked run" if not — never a fabricated 0/0/0
-- [ ] This run's snapshot appended to the history file (not overwritten), capped at 20 entries
-- [ ] If a gap type recurred 3+ times across files within a family, the one-line `rrd-standards-audit` suggestion was surfaced — without invoking it
-
-## Completion Criteria
-
-- [ ] All nine detectors executed (or, in incremental mode, executed scoped to the changed-file set)
-- [ ] Consolidated ranked report produced and written
-- [ ] Summary to owner includes finding count per family, trend since last run, scope mode, and report/proposal paths
+**Output:** Final HTML report and diff proposals. Optional next step: `rrd-apply-and-verify` to test fixes.
