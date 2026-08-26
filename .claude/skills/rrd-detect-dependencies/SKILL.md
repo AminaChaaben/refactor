@@ -5,7 +5,7 @@ description: 'Find test-to-test coupling and cascade risk from shared fixtures, 
 
 # Detect Dependencies
 
-**Goal:** Find test-to-test coupling and cascade risk before it causes a false-fail cascade — the single highest-impact root-cause family (47% of false-fails in the reference engagement).
+**Goal:** Find test-to-test coupling and cascade risk before it causes a false-fail cascade — the single highest-impact root-cause family (47% of false-fails in the reference engagement). Scope note: this detector owns the *parallel-safety root cause* — shared mutable state (statics, singletons, shared instance fields), order-dependence, and shared live app/data state. The parallel-execution *configuration knobs* (thread count, forced-serial flags, fork settings) belong to `rrd-detect-config`.
 
 **Role:** You are the Refactor Detective.
 

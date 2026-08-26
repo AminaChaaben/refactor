@@ -10,7 +10,7 @@ nextStepFile: null
 
 ### 1. Invoke `rrd-audit-all`
 
-Run the full `rrd-audit-all` workflow against `{target_project}` exactly as that workflow defines itself — same incremental/full choice, same nine detectors, same report and history-snapshot write. This wrapper does not alter or skip any of that workflow's own steps.
+Run the full `rrd-audit-all` workflow against `{target_project}` exactly as that workflow defines itself — same incremental/full choice, same ten detectors, same report and history-snapshot write. This wrapper does not alter or skip any of that workflow's own steps.
 
 ### 2. Read the Trend Result
 

@@ -2,7 +2,7 @@
 
 A graph-and-log-driven detection module for test/code reliability and maintainability defects, built on the BMad (Behavioral Module Architecture) framework.
 
-**Version:** 2.6.0
+**Version:** 3.0.0
 
 ## What It Does
 
@@ -10,22 +10,29 @@ Refactor Radar identifies the root causes that make test suites unreliable and c
 
 1. **Analyze & Fix from Real Logs** — classify test failures from execution logs (JUnit/Surefire XML, Playwright JSON, Jenkins console) as real failures, false positives (flaky), or false negatives (tests that pass without checking anything). Auto-invokes dependency resolution if needed.
 
-2. **Refactor for Best Practices** — six structural detectors uncover test-to-test coupling, fragility, data lifecycle issues, duplication, complexity hotspots, and diagnosability gaps (missing logging). Produces one consolidated ranked HTML report.
+2. **Refactor for Best Practices** — ten structural detectors uncover test-to-test coupling, fragility, data lifecycle issues, duplication, complexity hotspots, diagnosability gaps (missing logging), environment/config hazards, locator-strategy gaps, architecture/layering drift, and outdated technology versions. Produces one consolidated ranked HTML report.
 
 ## Architecture
 
-**One agent + 11 workflows:**
+**One agent + 18 workflows:**
 
 - `rrd-agent-radar` (Ray) — persona dispatcher; implements category-first menu dispatch
 - `rrd-analyze-test-reliability` — logs-first, multi-run classification (Category 1 umbrella)
 - `rrd-establish-execution-baseline` — turns any test suite from zero to N genuine runs, fixing environment/discovery blockers
-- `rrd-audit-all` — runs all six detectors, pools findings, ranks by impact (Category 2 umbrella)
+- `rrd-audit-all` — runs all ten detectors, pools findings, ranks by impact, writes an audit-history snapshot (Category 2 umbrella)
 - `rrd-detect-dependencies` — test-to-test coupling, cascade risk
 - `rrd-detect-instability` — fragile selectors, fixed waits, unhandled overlays
 - `rrd-detect-data-issues` — shared/non-reusable test data, lifecycle gaps
 - `rrd-detect-duplication` — structural code similarity via graph edges
 - `rrd-detect-complexity` — high-complexity hotspots, hidden O(n²), unguarded recursion
 - `rrd-detect-logging` — silent catches, exception-dropping logs, unlogged external calls/loops
+- `rrd-detect-config` — hardcoded URLs/credentials/secrets, env-switch logic, unsafe forced-serial config
+- `rrd-detect-locators` — duplicated selector literals, missing priority tiering, no central element repository
+- `rrd-detect-layering` — missing/mixed layers, cross-layer violations, naming-convention drift
+- `rrd-detect-tech-versions` — outdated Java/JUnit/Spring/Selenium/Maven/npm versions, ranked upgrades
+- `rrd-standards-audit` — governance gaps (conventions docs, DoD, lint config, CODEOWNERS) from an Audit All run
+- `rrd-ci-gate` — fails CI only on a new Critical-or-above opportunity since the last tracked run
+- `rrd-export-tickets` — turns top-N ranked opportunities into GitLab issues
 - `rrd-apply-and-verify` — applies a chosen diff for real, runs target's test suite to confirm
 - `rrd-setup` — module registration and configuration
 
@@ -91,7 +98,7 @@ Skill(rrd-detect-complexity, project="my-project")
 
 ### Category 2: Refactor (structure-driven)
 1. User points rrd at an indexed project
-2. `rrd-audit-all` runs all six detectors sequentially:
+2. `rrd-audit-all` runs all ten detectors sequentially:
    - Each detector queries the codebase graph independently
    - Findings are pooled
 3. **Evidence Fusion** phase: detects cross-detector corroboration (same target flagged by multiple detectors)
@@ -108,13 +115,20 @@ skills/
   rrd-agent-radar/          # Ray persona, category-first dispatch
   rrd-analyze-test-reliability/
   rrd-establish-execution-baseline/
-  rrd-audit-all/            # Pools all detectors
+  rrd-audit-all/            # Pools all ten detectors, writes audit-history snapshot
   rrd-detect-dependencies/
   rrd-detect-instability/
   rrd-detect-data-issues/
   rrd-detect-duplication/
   rrd-detect-complexity/
-  rrd-detect-logging/       # Newest: instrumentation for diagnosability
+  rrd-detect-logging/       # instrumentation for diagnosability
+  rrd-detect-config/        # hardcoded config, unsafe parallel execution
+  rrd-detect-locators/      # locator-strategy gaps
+  rrd-detect-layering/      # architecture/layering drift
+  rrd-detect-tech-versions/ # outdated dependency versions
+  rrd-standards-audit/      # governance/convention gaps from an audit
+  rrd-ci-gate/              # PASS/FAIL verdict for pipelines
+  rrd-export-tickets/       # top-N opportunities → GitLab issues
   rrd-apply-and-verify/     # Only skill allowed to edit source
   rrd-setup/                # Module registration
 
@@ -154,7 +168,7 @@ Each skill follows BMad structure:
 
 - Does **not** ingest test logs via the `ingest_traces` tool (that tool only accepts `{caller, callee, count}` triples for call-frequency boosting). Log analysis is a from-scratch capability using `Read`/`Grep`/`Bash`.
 - Does **not** automatically commit or push fixes — all edits remain in `proposals/` until the owner explicitly runs `rrd-apply-and-verify`.
-- Does **not** carry cross-session memory — findings from prior runs are not retained unless the owner saves them manually.
+- **Limited cross-session memory** — `rrd-audit-all` persists a per-project audit-history snapshot (`{rrd_artifacts}/audit-history/{project}.json`, an appended array of runs capped at 20) that powers trend reporting and the CI gate. Every other workflow is stateless; its findings are not retained unless the owner saves them manually.
 - **Requires an indexed project** — `index_repository` must run once before any detection workflow can query the graph.
 
 ## Testing & Validation

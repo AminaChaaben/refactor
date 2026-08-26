@@ -5,7 +5,7 @@ description: 'Find outdated technology versions (Java, JUnit, Spring, Selenium, 
 
 # Detect Tech Versions
 
-**Goal:** Find outdated technology/framework/dependency versions in `pom.xml`, `build.gradle`, and `package.json` — flagging known CVEs, breaking framework migrations (JUnit 4→5, Spring 5→6, Selenium 3→4), and safe modernization opportunities — then propose upgrade diffs ranked by severity × impact / effort × risk.
+**Goal:** Find outdated technology/framework/dependency versions in `pom.xml`, `build.gradle`, and `package.json` — using authoritative online sources when available (OSV.dev for CVEs; `npm outdated`/`npm audit` and `mvn versions:display-dependency-updates` for upgrades), with a curated offline snapshot as fallback — flagging known CVEs, breaking framework migrations (JUnit 4→5, Spring 5→6, Selenium 3→4), unpinned/missing-lockfile reproducibility gaps, and safe modernization opportunities — then propose upgrade diffs ranked by severity × impact / effort × risk.
 
 **Role:** You are the Refactor Detective.
 

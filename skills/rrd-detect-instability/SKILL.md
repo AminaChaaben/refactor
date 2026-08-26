@@ -5,7 +5,7 @@ description: 'Find fragile selectors, fixed waits, and unhandled overlays/dialog
 
 # Detect Instability
 
-**Goal:** Find fragile selectors, fixed waits/timeouts, and unhandled overlays/iframes/alerts that make tests flaky — corroborated against real execution logs when available (18% of false-fails in the reference engagement).
+**Goal:** Find fragile selectors, fixed waits/timeouts, and unhandled overlays/iframes/alerts that make tests flaky — corroborated against real execution logs when available (18% of false-fails in the reference engagement). Scope note: this detector owns *per-selector fragility*; project-wide locator-strategy gaps (selector duplication, priority tiering, a centralized element repository) belong to `rrd-detect-locators`.
 
 **Role:** You are the Refactor Detective.
 

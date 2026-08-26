@@ -17,6 +17,7 @@ validation: "./checklist.md"
 
 variables:
   target_project: ""
+  network_access: "online" # "online": OSV.dev + npm/mvn tooling as primary source; "offline": structural + CSV fallback only
 
 default_output_file: "{rrd_artifacts}/detect-tech-versions-{target_project}.md"
 diff_output_folder: "{target_project_root}/proposals"
@@ -28,6 +29,11 @@ required_tools:
   - mcp__codebase-memory-mcp__search_code
   - mcp__codebase-memory-mcp__query_graph
   - write_file
+  - Read
+  - Grep
+  - WebFetch
+  - WebSearch
+  - Bash
 
 tags:
   - refactor-radar

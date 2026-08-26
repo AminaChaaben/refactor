@@ -408,15 +408,15 @@ flowchart LR
     <span class="kicker">Inside a full audit</span>
     <h2>What <code>rrd-audit-all</code> actually runs</h2>
     <p class="dek">
-      Nine detectors in one pass, pooled, fused for cross-detector corroboration, grouped into
+      Ten detectors in one pass, pooled, fused for cross-detector corroboration, grouped into
       opportunities, ranked, and — new this cycle — compared against the last tracked run.
     </p>
     <div class="panel">
-      <h3>Nine detectors → one ranked report <span class="tag">rrd-audit-all internals</span></h3>
+      <h3>Ten detectors → one ranked report <span class="tag">rrd-audit-all internals</span></h3>
       <pre class="mermaid">
 flowchart TD
   S["Step 1<br/>full scan or incremental via detect_changes"] --> D
-  subgraph D["Step 2 — nine detector passes"]
+  subgraph D["Step 2 — ten detector passes"]
     direction LR
     d1["Dependencies"]
     d2["Instability"]
@@ -427,6 +427,7 @@ flowchart TD
     d7["Config"]
     d8["Locators"]
     d9["Layering"]
+    d10["Tech Versions"]
   end
   D --> F["Evidence Fusion<br/>cross-detector corroboration"]
   F --> O["Opportunity Engine<br/>Union-Find grouping"]
@@ -450,7 +451,7 @@ flowchart TD
       <tr><td class="skill">rrd-establish-execution-baseline</td><td class="desc">Zero real runs → N genuine runs; diagnoses compile/discovery/env blockers first</td><td class="pct">—</td></tr>
       <tr><td class="skill">rrd-analyze-test-reliability</td><td class="desc">Classifies every test as Real Failure / False Positive / False Negative / Healthy across multi-run history, plus app/env/data/script sub-tagging</td><td class="pct">—</td></tr>
 
-      <caption>Category 2 — nine structural detectors</caption>
+      <caption>Category 2 — ten structural detectors</caption>
       <tr><td class="skill">rrd-detect-dependencies</td><td class="desc">Shared mutable fixtures, order-dependence, shared live app/data state — highest-impact family</td><td class="pct">47%</td></tr>
       <tr><td class="skill">rrd-detect-instability</td><td class="desc">Fragile selectors, fixed waits, unhandled overlays/iframes/alerts</td><td class="pct">18%</td></tr>
       <tr><td class="skill">rrd-detect-data-issues</td><td class="desc">Shared/non-reusable test data, missing setup/teardown lifecycle</td><td class="pct">17%</td></tr>
@@ -460,9 +461,10 @@ flowchart TD
       <tr><td class="skill">rrd-detect-config</td><td class="desc">Hardcoded URLs/credentials/secrets, inline env-switch logic, unsafe parallel config</td><td class="pct">—</td></tr>
       <tr><td class="skill">rrd-detect-locators</td><td class="desc">Duplicated selectors, missing priority tiering, no centralized element repository</td><td class="pct">—</td></tr>
       <tr><td class="skill">rrd-detect-layering</td><td class="desc">Missing/mixed architectural layers, cross-layer violations, naming drift</td><td class="pct">—</td></tr>
+      <tr><td class="skill">rrd-detect-tech-versions</td><td class="desc">Outdated Java/JUnit/Spring/Selenium/Maven/npm versions, ranked by security severity and upgrade risk</td><td class="pct">—</td></tr>
 
       <caption>Orchestration, governance &amp; remediation</caption>
-      <tr><td class="skill">rrd-audit-all</td><td class="desc">Runs all nine detectors, fuses evidence, ranks opportunities, tracks trend</td><td class="pct">—</td></tr>
+      <tr><td class="skill">rrd-audit-all</td><td class="desc">Runs all ten detectors, fuses evidence, ranks opportunities, tracks trend</td><td class="pct">—</td></tr>
       <tr><td class="skill">rrd-standards-audit</td><td class="desc">Reads a completed audit for gap types recurring 3+ times → governance/convention gaps</td><td class="pct">—</td></tr>
       <tr><td class="skill">rrd-apply-and-verify</td><td class="desc"><span class="chip only-source-edit">only skill that edits source</span> — applies one diff, runs real tests, optional auto-rollback</td><td class="pct">—</td></tr>
 
@@ -490,7 +492,7 @@ flowchart TD
       <div class="trigger">"I already suspect it's hardcoded config / bad locators."</div>
       <div class="body">
         <h4>Targeted single-detector run</h4>
-        <p>Any of the nine detectors can be invoked standalone, scoped to the whole project or one file, without paying for a full nine-detector sweep.</p>
+        <p>Any of the ten detectors can be invoked standalone, scoped to the whole project or one file, without paying for a full ten-detector sweep.</p>
         <span class="path">a single rrd-detect-* skill, direct invocation</span>
       </div>
     </div>

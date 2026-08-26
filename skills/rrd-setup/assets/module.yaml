@@ -1,6 +1,6 @@
 code: rrd
 name: "Refactor Radar"
-description: "Graph-and-log-driven detection of test/code reliability and maintainability defects (dependency/cascade, instability, data lifecycle, duplication, complexity hotspots, logging/diagnosability gaps, config/environment leaks, locator-strategy gaps, architecture layering) plus execution-log-driven false-positive/false-negative test classification and governance/standards auditing — with reviewable diff proposals, an explicit apply-and-verify step, a CI gate, and ticket export."
+description: "Graph-and-log-driven detection of test/code reliability and maintainability defects (dependency/cascade, instability, data lifecycle, duplication, complexity hotspots, logging/diagnosability gaps, config/environment leaks, locator-strategy gaps, architecture layering, outdated technology versions) plus execution-log-driven false-positive/false-negative test classification and governance/standards auditing — with reviewable diff proposals, an explicit apply-and-verify step, a CI gate, and ticket export."
 module_version: 3.0.0
 default_selected: false
 module_greeting: >

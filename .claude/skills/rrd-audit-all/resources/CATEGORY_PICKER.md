@@ -150,7 +150,7 @@ Checking prerequisites...
    ├─ Codebase indexed: YES
    ├─ Status: AVAILABLE
    ├─ Time: ~7 minutes
-   └─ Runs all 9 detectors against source code
+   └─ Runs all 10 detectors against source code
 
 ❌ Log-Based (Execution-Based)
    ├─ Test suite present: YES
@@ -200,7 +200,7 @@ Which do you want?
 ## Human's Next Step
 
 Once they pick a category:
-1. If Full Refactor: Proceed to step-02 (run all 9 detectors)
+1. If Full Refactor: Proceed to step-02 (run all 10 detectors)
 2. If Log-Based: Launch `rrd-establish-execution-baseline` instead (this skill pauses)
 3. If Combined: Launch `rrd-establish-execution-baseline` first, then call back to this skill
 

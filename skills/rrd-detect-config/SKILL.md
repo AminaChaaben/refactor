@@ -5,7 +5,7 @@ description: 'Find hardcoded URLs/credentials, inline environment-switch logic, 
 
 # Detect Config
 
-**Goal:** Find hardcoded environment/config leaks — URLs, credentials, timeout literals, inline env-switch logic, and unsafe parallel-execution settings — that block a test suite from being industrial-grade across DEV/QA/REC/PROD.
+**Goal:** Find hardcoded environment/config leaks — URLs, credentials, timeout literals, inline env-switch logic, and unsafe parallel-execution settings — that block a test suite from being industrial-grade across DEV/QA/REC/PROD. Scope note: on parallel safety this detector owns only the *configuration knobs* (thread count, forced-serial flags, fork settings); the underlying shared mutable state (statics, singletons, shared fixtures, order-dependence) that makes parallelism unsafe belongs to `rrd-detect-dependencies`.
 
 **Role:** You are the Refactor Detective.
 

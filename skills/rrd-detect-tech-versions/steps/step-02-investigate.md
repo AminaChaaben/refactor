@@ -24,35 +24,44 @@ For each manifest found, read it directly (these are config files, not indexed c
 
 - **pom.xml**: `<properties>` (`maven.compiler.source`/`target`, `java.version`), every `<dependency>` group/artifact/version (including versions inherited from a parent POM or a `<dependencyManagement>` block — note when a version is inherited rather than declared locally)
 - **build.gradle**: `sourceCompatibility`/`targetCompatibility` (or `toolchain` block for Java version), every `dependencies { }` entry with a resolvable version string
-- **package.json**: `engines.node` if present, every entry in `dependencies` and `devDependencies`
+- **package.json**: `engines.node` if present, every entry in `dependencies` and `devDependencies`. Also read the lockfile (`package-lock.json`/`yarn.lock`/`pnpm-lock.yaml`) if present to get each package's **resolved** version — that resolved version, not the caret range, is what step 3b and step 4 check against OSV/audit. Note if no lockfile is committed (a finding — see §3).
 
 ### 3. Structural Discipline Checks (Primary, Fully Reliable — No External Call)
 
 Before touching any external source, check what's verifiable from the repo alone:
 
-- **Unpinned version**: `LATEST`, `RELEASE`, an open version range, or an unexplained `-SNAPSHOT` on a dependency or plugin. Report as its own finding — see step 7 for the plugin-specific case.
+- **Unpinned version (ecosystem-aware)**: for **Maven/Gradle**, flag `LATEST`, `RELEASE`, an open version range, or an unexplained `-SNAPSHOT` on a dependency or plugin. For **npm**, a `^`/`~` caret/tilde range is *idiomatic and acceptable when a committed lockfile pins the resolved version* — do **not** flag it. Flag npm only for a genuinely floating spec (`*`, `latest`, `x`, an unbounded `>=`), or for any range **when no lockfile is committed**. Report as its own finding — see step 7 for the plugin-specific case.
+- **Missing lockfile (npm/Node)**: if `package.json` exists but no `package-lock.json`/`yarn.lock`/`pnpm-lock.yaml` is committed, report a MEDIUM "missing lockfile — non-reproducible installs" finding: every `^`/`~` range then resolves to whatever is newest at install time, so builds aren't reproducible and resolved versions can't be audited reliably.
 - **Duplicate version declaration**: the same `(group, artifact)` version set in more than one place — a parent POM property, a BOM import, a `dependencyManagement` entry, and/or a local `<version>` tag. Report as its own LOW/MEDIUM finding ("duplicate version declaration") regardless of whether the value is outdated — per `detect-tech-versions.md` §7. If the duplicates disagree, say so explicitly; that's a real drift risk, not a cosmetic one.
 
 These findings carry full confidence — no caveat needed, no external dependency, nothing to verify further.
 
-### 3b. Live "Latest Version" Check (Best-Effort Pointer Only — Never Asserted as Fact)
+### 3b. Live Version & Advisory Check (Online — Primary Source When Network Is Available)
 
-No free live source is reliably correct: direct Maven Central metadata fetches can return HTTP 403; `search.maven.org`'s `core=gav` mode can return a stale/wrong version; its default-core `latestVersion` field can return a pre-release as if it were current; and independent lookups can disagree with each other with no tiebreaker. Treat any live check as a **candidate, not a verified fact**:
+`{network_access}` defaults to `online`. **When online, this step's results are authoritative Tier 1 findings**, not "verify yourself" pointers — because they come from the ecosystem's own tooling and the OSV advisory database, not a single guessed endpoint. When `offline`, skip to the CSV fallback in step 4 and label any version-gap statement best-effort.
 
-- Attempt one lookup per artifact (`WebSearch` for the package name plus "latest version," or a registry endpoint if reachable) and record the source.
-- Present the result as `candidate — verify before applying, per {source}`, never as a bare version number implying it's confirmed current.
-- If the lookup fails or disagrees with another source you happen to have checked, say so plainly rather than picking one silently.
-- **Do not fall back to `./resources/version-database.csv` as if it were a live answer.** The CSV is for CVE/severity/toolchain judgment (step 4), not a version list — presenting its `latest_safe_version` column as "the current version" is the same overclaiming this step exists to avoid.
-- This step never blocks or degrades the structural findings from step 3 — those stand on their own regardless of whether a live check succeeds.
+Use the ecosystem's own tooling first — it is ground truth, already knows the project's resolved tree, and needs no guessing:
 
-### 4. Cross-Reference Curated Knowledge (CVE, Breaking-Change Risk)
+- **npm/Node (`package.json` present):**
+  - `npm outdated --json` in the target project → current / wanted / latest per package (authoritative).
+  - `npm audit --json` → CVEs from the npm advisory DB with severity and the fix-available version (authoritative).
+  - If `node_modules`/lockfile is absent so those can't run, fall back to per-package `https://registry.npmjs.org/{pkg}` (`dist-tags.latest`) for latest, and OSV (below) for CVEs.
+- **Maven/Gradle:**
+  - `mvn versions:display-dependency-updates` and `versions:display-plugin-updates` → available upgrades (authoritative for the resolved POM).
+  - If Maven can't run, fall back to Maven Central `https://search.maven.org/solrsearch/select?q=g:{group}+AND+a:{artifact}&core=gav&rows=1&wt=json` for latest (best-effort — verify), and OSV for CVEs.
+- **OSV.dev — cross-ecosystem CVE source (primary online, replaces the CSV):** `POST https://api.osv.dev/v1/query` with `{"package":{"ecosystem":"npm|Maven|PyPI","name":"{name}"},"version":"{resolved_version}"}`. Returns advisories (CVE/GHSA IDs, severity, affected/fixed ranges) for the exact resolved version — use the locked version, not the range.
 
-Look up the same `(group, artifact)` pair in `./resources/version-database.csv` for:
+Record the source and date for every online result. If two authoritative sources disagree, say so. Only when **no** authoritative source is reachable (no tooling, no OSV hit — a lone registry/web guess) do you label a result `candidate — verify before applying, per {source}`. This step never blocks or degrades the structural findings from step 3.
 
-- `severity`/`cve`/`cve_fixed_in` — if `cve` is populated for the current version, this is CRITICAL regardless of anything else, and the proposed fix targets `cve_fixed_in`, not whatever step 3b's best-effort candidate happened to return.
-- Whether the pair is a known agent/weaving/toolchain-risk artifact (§6 of `detect-tech-versions.md`).
+### 4. CVE / Advisory Severity (OSV Online → CSV Offline Fallback)
 
-If the artifact isn't in the CSV, that's fine — the structural checks (step 3) don't depend on it, and CVE/severity data simply isn't available for that artifact (say so, don't guess). State the not-in-CSV count once at the end, not per-artifact.
+Determine CVE/severity for each `(ecosystem, name, resolved_version)`:
+
+- **Online (default):** trust the OSV.dev result from step 3b — CVE/GHSA ID, severity, and the first fixed version. If OSV (or `npm audit`) reports an advisory affecting the resolved version, this is CRITICAL/HIGH per the advisory's severity, and the proposed fix targets the first fixed version (OSV's fixed range, or `npm audit`'s `fixAvailable`), not a bare "latest."
+- **Offline / OSV unreachable:** fall back to `./resources/version-database.csv` (`cve`/`cve_fixed_in`/`severity`) as a point-in-time snapshot — good for the well-known cases (Log4Shell, jackson-databind) but not authoritative for coverage; state that CVE data is from the offline snapshot and may be incomplete.
+- Also check whether the pair is a known agent/weaving/toolchain-risk artifact (§6 of `detect-tech-versions.md`).
+
+If neither OSV nor the CSV has data for an artifact, say so — CVE/severity simply isn't available for it (don't guess). State the no-data count once at the end, not per-artifact.
 
 ### 5. Classify Breaking-Change Risk
 
