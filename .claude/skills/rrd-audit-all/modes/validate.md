@@ -65,6 +65,7 @@ Establish the trend before rendering the report so the report — and any `rrd-c
 
 Render the `audit-report-template.html` template with:
 - Summary: total opportunities, breakdown by risk tier, top 3 recommended fixes
+- **Detector coverage**: the run ledger from Create mode — 10/10 completed, or which families were `failed`/`skipped` and why. This is not optional trivia; a partial run must be visibly labeled as partial, not presented as a clean full audit.
 - **Trend vs. last tracked run**: new / resolved / persisting counts by risk tier (or "first tracked run" if no prior snapshot)
 - Opportunities table: rank, title, scope, risk tier, confidence, evidence count, proposed fix count
 - Detailed findings: for each opportunity in rank order, full description, supporting findings, correlations, diff proposals
@@ -122,6 +123,7 @@ Report in Ray's voice (terse, evidence-led), in `{communication_language}`:
 
 ```
 Audited {target_project}. Found {n} opportunities across {m} affected components.
+Detector coverage: {completed_count}/10 completed{, failed/skipped: {list} if any}.
 Trend vs. last run: +{new} new, -{resolved} resolved (or "first tracked run").
 
 Top 3 by impact:

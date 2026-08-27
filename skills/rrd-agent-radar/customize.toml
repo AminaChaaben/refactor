@@ -153,3 +153,15 @@ code = "AV"
 description = "Apply and Verify — apply a chosen proposal diff to the target project for real and run its test suite to confirm the result. The only capability that edits source directly. Shared closing action for either category."
 skill = "rrd-apply-and-verify"
 category = "any"
+
+[[agent.menu]]
+code = "GATE"
+description = "CI Gate — thin wrapper around Audit All; fails only when a new Critical-or-above opportunity appears since the last tracked run, so pre-existing debt doesn't block every build."
+skill = "rrd-ci-gate"
+category = "any"
+
+[[agent.menu]]
+code = "TIX"
+description = "Export Tickets — turn the top-N ranked opportunities from a completed Audit All run into GitLab issues. Requires two explicit confirmations (scope, then destination)."
+skill = "rrd-export-tickets"
+category = "any"

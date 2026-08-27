@@ -6,7 +6,8 @@
 
 - [ ] Target project resolved via `list_projects`/`index_status`, confirmed indexed
 - [ ] Knowledge fragments loaded: `evidence-and-diff-discipline.md` and 10 detector knowledge fragments
-- [ ] All 10 detectors (DD, DI, DT, DU, DC, DL, DF, DO, DY, DV) executed in sequence against target
+- [ ] Detector run ledger maintained (one entry per detector: completed/failed/skipped), updated as each detector finishes — not reconstructed afterward
+- [ ] All 10 detectors (DD, DI, DT, DU, DC, DL, DF, DO, DY, DV) confirmed `completed` in the ledger — **halt and surface to the owner if any is `failed`/`skipped` rather than treating it as a 0-finding result**
 - [ ] Each detector generated findings with: id, detector_family, file, line, title, description, evidence, confidence, affected_target, root_cause_signals
 - [ ] No filtering or grouping applied — raw output only
 - [ ] All findings pooled into single array
@@ -41,6 +42,7 @@
 - [ ] Report written to `{rrd_artifacts}/audit-report-{target_project}-{date}.html`
 - [ ] Diff proposals written for each fixable opportunity to `{project-root}/proposals/{file}.{finding_id}.patch`
 - [ ] Report completeness verified: all opportunities represented, no missing entries
+- [ ] Detector run ledger from Create mode carried into the report summary (10/10 completed, or explicit list of failed/skipped families and why)
 - [ ] Trend computed against `{rrd_artifacts}/audit-history/{target_project}.json` if prior runs exist; reported as "first tracked run" if not
 - [ ] This run's summary appended to history file (not overwritten), capped at 20 entries
 
