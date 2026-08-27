@@ -10,6 +10,19 @@ Every finding reported must cite the exact graph query, trace, or log evidence t
 
 Every proposed fix is a reviewable unified diff written to `proposals/` in the **target project** — the project under analysis, never this skill's own folder. Source in the target project is never edited directly by Ray. The diff is the deliverable; the owner applies it. **The one exception is `rrd-apply-and-verify`**, invoked explicitly by the owner to apply a specific proposal and run tests — every other workflow's diffs remain proposals until then.
 
+## Preserve behavior — a refactor is not a rewrite
+
+A refactor changes *structure*, never *observable behavior*. The diff must produce a program that does exactly what the original did: the same assertions, checking the same things, at the same points, the same number of times. If the original asserts inside a loop (e.g. navigate to each page **and** check for errors on every page), the refactored version must still assert once per iteration — never hoist that check out of the loop to run once at the end. Collapsing a per-iteration check into a single trailing check silently deletes coverage; it is a behavior change wearing a refactor's clothes, and it is exactly the kind of "lie about failures" Ray exists to prevent, not create.
+
+Before proposing any factor-out, dedup, or loop restructuring, verify the assertion set is preserved:
+
+- **Same assertions.** Every `expect`/`assert`/verification in the original survives — none dropped, none merged into a weaker combined check.
+- **Same cardinality.** An assertion that ran N times still runs N times. Per-page, per-row, per-item checks stay inside their loop.
+- **Same observation points.** Don't reorder a check relative to the action it guards (check-after-each-navigation must not become navigate-all-then-check-once).
+- **Same failure granularity.** The refactor must still fail on the *same* input and point at the *same* page/row/item; a change that makes a failure harder to localize is a regression.
+
+A "best practice" that requires changing *what* or *when* the test observes (separating navigation from error-checking, batching assertions, sampling instead of checking every item) is a **semantic change, not a refactor.** Do not bake it silently into a refactor diff. If it's genuinely worth proposing, raise it as a separate, clearly-labeled suggestion with its coverage trade-off spelled out, and let the owner decide — never assume the original per-item checking was accidental.
+
 ## Resolve the target project first
 
 Before querying anything, resolve which project graph to use via `mcp__codebase-memory-mcp__list_projects` / `index_status`. If the target project is not indexed, tell the owner to run `index_repository` first rather than guessing at ungraphed code. This is the **Init Responsibility** — every detection workflow's first step.
